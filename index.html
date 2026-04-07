@@ -3,147 +3,195 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>UBS Laranjeiras - Ponto</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>UBS Laranjeiras - Ponto Inteligente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --text: #1C1C1E; --subtext: #8E8E93; }
+    :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --orange: #FF9500; --text: #1C1C1E; --subtext: #8E8E93; }
     * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); margin: 0; padding-bottom: 100px; color: var(--text); }
+    body { background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
     
-    /* Login Screen */
-    #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
-    .login-box { background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; box-shadow:0 10px 25px rgba(0,0,0,0.1); text-align:center; }
-    .login-box h2 { margin-top: 0; margin-bottom: 20px; font-weight: 700; }
+    /* Login */
+    #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .login-box h2 { margin: 10px 0 20px; font-weight: 800; color: var(--blue); }
     
-    .header { background: white; padding: 30px 20px 15px; border-bottom: 1px solid rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+    /* Header & UI */
+    .header { background: white; padding: 30px 20px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+    .header h1 { margin: 0; font-size: 22px; font-weight: 800; }
+    .header p { margin: 4px 0 0; color: var(--subtext); font-weight: 500; font-size: 14px; }
     .container { padding: 15px; }
-    .card { background: var(--card); border-radius: 14px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-    label { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block; text-align: left; }
-    input, select { width: 100%; background: #F2F2F7; border: none; border-radius: 10px; padding: 12px; font-size: 16px; margin-bottom: 15px; outline:none; }
+    .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+    .card-title { font-size: 13px; font-weight: 700; color: var(--subtext); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
     
-    .btn { width: 100%; background: var(--blue); color: white; font-size: 17px; font-weight: 600; border: none; border-radius: 12px; padding: 14px; cursor: pointer; transition: opacity 0.2s; }
+    label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text); }
+    input, select, textarea { width: 100%; background: #F2F2F7; border: none; border-radius: 12px; padding: 14px; font-size: 15px; margin-bottom: 15px; outline: none; }
+    textarea { resize: vertical; min-height: 80px; }
+    
+    .btn { width: 100%; background: var(--blue); color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; padding: 16px; cursor: pointer; transition: opacity 0.2s; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-green { background: var(--green); }
-    
-    .tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: white; display: flex; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; z-index: 100; }
+    .btn-orange { background: var(--orange); }
+
+    /* Dashboard Stats */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .stat-box { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
+    .stat-box h4 { margin: 0; font-size: 24px; font-weight: 800; color: var(--blue); }
+    .stat-box span { font-size: 11px; font-weight: 600; color: var(--subtext); text-transform: uppercase; }
+
+    /* Nav Bar */
+    .tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; z-index: 100; }
     .tab-item { background: none; border: none; color: var(--subtext); display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 600; gap: 4px; }
     .tab-item.active { color: var(--blue); }
     .view { display: none; } .view.active { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Pop-Up Bonito iOS */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
-    .modal-box { background: white; width: 270px; border-radius: 14px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; flex-direction: column; animation: scaleUp 0.2s; }
-    .modal-icon { font-size: 44px; margin-top: 20px; }
-    .modal-box h3 { margin: 10px 0 5px; font-size: 17px; font-weight: 600; }
-    .modal-box p { margin: 0 15px 20px; font-size: 13px; line-height: 1.4; color: var(--text); }
-    .modal-btn { width: 100%; border: none; border-top: 1px solid rgba(0,0,0,0.1); background: transparent; color: var(--blue); font-size: 17px; font-weight: 600; padding: 14px; cursor: pointer; }
+    /* Feriados Tags */
+    .tag { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+    .tag-A { background: #ffebee; color: #c62828; } .tag-B { background: #e3f2fd; color: #1565c0; }
+    .tag-C { background: #f3e5f5; color: #6a1b9a; } .tag-D { background: #fff3e0; color: #ef6c00; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; }
+    .modal-box { background: white; width: 280px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: scaleUp 0.2s; }
+    .modal-box h3 { margin: 15px 0 5px; font-size: 18px; }
+    .modal-box p { margin: 0 15px 20px; font-size: 14px; color: var(--subtext); }
+    .modal-btn { width: 100%; border: none; border-top: 1px solid #eee; background: transparent; color: var(--blue); font-size: 16px; font-weight: 700; padding: 15px; cursor: pointer; border-radius: 0 0 16px 16px; }
     @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
+  <!-- LOGIN -->
   <div id="login-screen">
     <div class="login-box">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:70px; margin-bottom:15px;">
-      <h2>Acesso Restrito</h2>
-      <label>Usuário</label>
-      <input type="text" id="lUser" placeholder="ex: karina" style="text-transform: lowercase;">
-      <label>Senha</label>
-      <input type="password" id="lPass" placeholder="••••••">
-      <button class="btn" id="btnLogin" onclick="fazerLogin()">Entrar</button>
-      <p id="loginError" style="color:var(--red); font-size:13px; margin-top:15px; display:none; font-weight:500;"></p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:70px;">
+      <h2>Ponto Inteligente</h2>
+      <input type="text" id="lUser" placeholder="Usuário (ex: karina)" style="text-transform: lowercase;">
+      <input type="password" id="lPass" placeholder="Senha">
+      <button class="btn" id="btnLogin" onclick="fazerLogin()">Entrar Seguramente</button>
+      <p id="loginError" style="color:var(--red); font-size:13px; margin-top:15px; display:none; font-weight:600;"></p>
     </div>
   </div>
 
-  <!-- CONTEÚDO PRINCIPAL (OCULTO ATÉ LOGIN) -->
+  <!-- APP CONTENT -->
   <div id="main-content" style="display:none;">
     <div class="header">
-      <h1 id="userName">Nome do Usuário</h1>
-      <p id="userCargo" style="color:var(--blue); font-weight:600; margin:4px 0 0; font-size:14px;">Cargo</p>
+      <h1 id="userName">Nome</h1>
+      <p id="userCargo">Cargo</p>
     </div>
 
     <div class="container">
-      <!-- ABA: PONTO -->
-      <div id="view-ponto" class="view active">
-        <div class="card">
-          <div id="gpsStatus" style="font-size:13px; text-align:center; font-weight:600; color:var(--red); margin-bottom:15px; padding: 8px; background: var(--bg); border-radius: 8px;">
-            📍 Buscando GPS...
+      
+      <!-- ABA 1: DASHBOARD E REGISTRO -->
+      <div id="view-dashboard" class="view active">
+        
+        <div class="grid-2">
+          <div class="stat-box">
+            <h4 id="horasHoje">00:00</h4>
+            <span>Trabalhado Hoje</span>
           </div>
+          <div class="stat-box">
+            <h4 id="statusGps">--</h4>
+            <span>Status GPS</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Registrar Movimento</div>
           <div style="display:flex; gap:10px">
             <div style="flex:1"><label>Data</label><input type="date" id="fData"></div>
             <div style="flex:1"><label>Hora</label><input type="time" id="fHora"></div>
           </div>
-          <label>Tipo de Registro</label>
-          <select id="fTipo">
-            <option value="Entrada">Entrada</option>
-            <option value="Almoço">Início Almoço</option>
-            <option value="Retorno">Retorno Almoço</option>
-            <option value="Saída Final">Saída Final</option>
+          <label>Ação</label>
+          <select id="fTipo" onchange="mudarFormulario()">
+            <option value="Entrada">📥 Entrada</option>
+            <option value="Almoço">🍽️ Início Almoço</option>
+            <option value="Retorno">🔙 Retorno Almoço</option>
+            <option value="Saída Final">📤 Saída Final</option>
+            <option value="Anotação">📝 Apenas Anotação/Ocorrência</option>
           </select>
-          <label>Observação (Opcional)</label>
-          <input type="text" id="fObs" placeholder="Ex: Atraso, consulta...">
+          <div id="boxObs">
+            <label>Observação / Justificativa</label>
+            <textarea id="fObs" placeholder="Ex: Fui ao médico, atraso devido a trânsito..."></textarea>
+          </div>
           <button class="btn" id="btnRegistrar" onclick="enviarPonto()">Registrar Ponto</button>
         </div>
-        
+      </div>
+
+      <!-- ABA 2: RELATÓRIOS E HORAS -->
+      <div id="view-relatorios" class="view">
         <div class="card">
-           <h3 style="margin-top:0; font-size:15px; color:var(--subtext); text-transform:uppercase;">Gerar Folha Mensal (PDF)</h3>
-           <div style="display:flex; gap:10px;">
-             <select id="pdfMes" style="flex:2">
-               <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-               <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
-               <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-               <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-             </select>
-             <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
-           </div>
-           <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Documento</button>
+          <div class="card-title">Folha Mensal (PDF)</div>
+          <div style="display:flex; gap:10px;">
+            <select id="pdfMes" style="flex:2">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
+          </div>
+          <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Folha PDF</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Histórico de Movimentações</div>
+          <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
         </div>
       </div>
-      
-      <!-- ABA: HISTÓRICO -->
-      <div id="view-historico" class="view">
+
+      <!-- ABA 3: CALENDÁRIO E FERIADOS -->
+      <div id="view-calendario" class="view">
         <div class="card">
-          <h3 style="margin-top:0; font-size:15px; color:var(--subtext); text-transform:uppercase;">Meus Registros</h3>
-          <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando histórico...</div></div>
+          <div class="card-title">Calendário 2026</div>
+          <div style="font-size:11px; color:var(--subtext); margin-bottom:15px; display:flex; flex-wrap:wrap; gap:5px;">
+            <span class="tag tag-A">A - Leis Federais</span>
+            <span class="tag tag-B">B - Leis Municipais</span>
+            <span class="tag tag-C">C - Lei Estadual</span>
+            <span class="tag tag-D">D - Facultativo</span>
+          </div>
+          <div id="listaFeriados"></div>
         </div>
       </div>
+
     </div>
 
-    <!-- BARRA INFERIOR -->
+    <!-- NAVEGAÇÃO -->
     <div class="tab-bar">
-      <button class="tab-item active" onclick="show('ponto', this)">
+      <button class="tab-item active" onclick="show('dashboard', this)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        Início
+      </button>
+      <button class="tab-item" onclick="show('relatorios', this)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Relatórios
+      </button>
+      <button class="tab-item" onclick="show('calendario', this)">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        Ponto
+        Feriados
       </button>
-      <button class="tab-item" onclick="show('historico', this)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-        Histórico
-      </button>
-      <button class="tab-item" onclick="logout()">
+      <button class="tab-item" onclick="location.reload()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
         Sair
       </button>
     </div>
   </div>
 
-  <!-- POP-UP CUSTOMIZADO -->
   <div id="customModal" class="modal-overlay">
     <div class="modal-box">
-      <div class="modal-icon" id="modalIcon">✅</div>
-      <h3 id="modalTitle">Sucesso</h3><p id="modalMsg">Mensagem aqui</p>
-      <button class="modal-btn" onclick="fecharModal()">OK</button>
+      <div class="modal-icon" id="modalIcon" style="font-size:50px; margin-top:20px;">✅</div>
+      <h3 id="modalTitle">Sucesso</h3><p id="modalMsg">Mensagem</p>
+      <button class="modal-btn" onclick="document.getElementById('customModal').style.display='none'">OK</button>
     </div>
   </div>
 
   <script>
-    // ========= ATENÇÃO: COLE SUA NOVA URL GERADA ABAIXO =========
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwA8yCwjbf8scs1AlYT2GfspzCTQs3gqA8y_C0H-liwWryz-zBS_-aJjb3qFaMMfQ-V/exec";
+    // ==========================================
+    // COLE SUA NOVA URL DO GOOGLE SCRIPTS AQUI
+    const WEB_APP_URL = "SUA_NOVA_URL_AQUI";
+    // ==========================================
 
-    let currentUser = null;
-    let geo = { lat: 0, lon: 0, ok: false };
+    let currentUser = null; let geo = { lat: 0, lon: 0, ok: false }; let historicoGlobal = [];
 
     function abrirModal(titulo, msg, tipo='sucesso') {
       document.getElementById('modalTitle').innerText = titulo;
@@ -151,45 +199,38 @@
       document.getElementById('modalIcon').innerText = tipo === 'erro' ? '⚠️' : '✅';
       document.getElementById('customModal').style.display = 'flex';
     }
-    function fecharModal() { document.getElementById('customModal').style.display = 'none'; }
+
+    function mudarFormulario() {
+      const isNota = document.getElementById('fTipo').value === "Anotação";
+      document.getElementById('btnRegistrar').className = isNota ? "btn btn-orange" : "btn";
+      document.getElementById('btnRegistrar').innerText = isNota ? "Salvar Anotação" : "Registrar Ponto";
+    }
 
     function fazerLogin() {
       const login = document.getElementById('lUser').value.trim().toLowerCase();
       const senha = document.getElementById('lPass').value.trim();
-      const erroP = document.getElementById('loginError');
       const btn = document.getElementById('btnLogin');
+      const err = document.getElementById('loginError');
 
-      if(!login || !senha) {
-        erroP.innerText = "Preencha usuário e senha."; erroP.style.display = 'block'; return;
-      }
-
-      btn.innerText = "Conectando..."; btn.disabled = true; erroP.style.display = 'none';
+      if(!login || !senha) { err.innerText="Preencha os campos."; err.style.display='block'; return; }
+      btn.innerText = "Conectando..."; btn.disabled = true; err.style.display = 'none';
       
-      // O truque do text/plain burla o erro de CORS do Google!
       fetch(WEB_APP_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, 
         body: JSON.stringify({ acao: "login", login: login, senha: senha })
-      })
-      .then(r => r.json())
-      .then(res => {
+      }).then(r => r.json()).then(res => {
         if(res.autorizado) {
-          currentUser = res;
-          currentUser.loginID = login;
+          currentUser = res; currentUser.loginID = login;
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('main-content').style.display = 'block';
           document.getElementById('userName').innerText = res.user.nome;
           document.getElementById('userCargo').innerText = res.user.cargo;
-          iniciarGps(); carregarHistorico();
+          iniciarGps(); renderizarFeriados(res.feriados); carregarHistorico();
         } else {
-          btn.innerText = "Entrar"; btn.disabled = false;
-          erroP.innerText = "Usuário ou senha incorretos!"; erroP.style.display = 'block';
+          btn.innerText = "Entrar Seguramente"; btn.disabled = false;
+          err.innerText = "Credenciais incorretas!"; err.style.display = 'block';
         }
-      })
-      .catch(err => {
-        btn.innerText = "Entrar"; btn.disabled = false;
-        erroP.innerText = "Erro de conexão. A URL do Google está correta?"; erroP.style.display = 'block';
-      });
+      }).catch(e => { btn.innerText="Entrar Seguramente"; btn.disabled=false; err.innerText="Erro na rede."; err.style.display='block'; });
     }
 
     function iniciarGps() {
@@ -197,18 +238,16 @@
         geo.lat = pos.coords.latitude; geo.lon = pos.coords.longitude;
         const R = 6371e3; const dLat = (currentUser.ubsGeo.lat - geo.lat) * Math.PI/180; const dLon = (currentUser.ubsGeo.lon - geo.lon) * Math.PI/180;
         const a = Math.sin(dLat/2)**2 + Math.cos(geo.lat*Math.PI/180)*Math.cos(currentUser.ubsGeo.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-        geo.ok = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) <= 250; // 250 metros
+        geo.ok = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) <= 250;
         
-        const g = document.getElementById('gpsStatus');
-        g.innerText = geo.ok ? "📍 Dentro do Perímetro da UBS" : "📍 Fora do Perímetro da UBS";
-        g.style.color = geo.ok ? "var(--green)" : "var(--red)";
+        const gs = document.getElementById('statusGps');
+        gs.innerText = geo.ok ? "Local" : "Distante";
+        gs.style.color = geo.ok ? "var(--green)" : "var(--red)";
       }, null, {enableHighAccuracy: true});
     }
 
     function enviarPonto() {
-      const btn = document.getElementById('btnRegistrar');
-      btn.innerText = "Registrando..."; btn.disabled = true;
-
+      const btn = document.getElementById('btnRegistrar'); btn.innerText = "Processando..."; btn.disabled = true;
       const dados = {
         usuario: currentUser.user.nome, dataManual: document.getElementById('fData').value.split('-').reverse().join('/'),
         horaManual: document.getElementById('fHora').value, tipo: document.getElementById('fTipo').value,
@@ -219,14 +258,9 @@
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ acao: "registrar", dados: dados })
       }).then(r => r.json()).then(res => {
-        btn.innerText = "Registrar Ponto"; btn.disabled = false;
-        document.getElementById('fObs').value = "";
-        abrirModal("Sucesso!", res.msg, "sucesso");
-        carregarHistorico();
-      }).catch(err => {
-        btn.innerText = "Registrar Ponto"; btn.disabled = false;
-        abrirModal("Erro", "Não foi possível registrar. Tente novamente.", "erro");
-      });
+        btn.disabled = false; mudarFormulario(); document.getElementById('fObs').value = "";
+        abrirModal("Sucesso", res.msg, "sucesso"); carregarHistorico();
+      }).catch(err => { btn.disabled=false; mudarFormulario(); abrirModal("Erro", "Falha ao salvar.", "erro"); });
     }
 
     function carregarHistorico() {
@@ -234,53 +268,97 @@
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ acao: "historico", nome: currentUser.user.nome })
       }).then(r => r.json()).then(res => {
-        const div = document.getElementById('listaHistorico');
-        if(res.length === 0) return div.innerHTML = "<div style='text-align:center; padding: 20px;'>Sem registros ainda.</div>";
-        
-        div.innerHTML = res.map(h => `
-          <div style="padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:600; font-size:15px;">${h.tipo} <span style="font-size:10px; color:${h.status=='DENTRO'?'var(--green)':'var(--red)'}">(${h.status})</span></div>
-              <div style="font-size:13px; color:var(--subtext); margin-top:2px;">${h.data} ${h.obs ? '— '+h.obs : ''}</div>
-            </div>
-            <div style="font-size:17px; font-weight:700; color:var(--blue);">${h.hora}</div>
-          </div>
-        `).join('');
+        historicoGlobal = res;
+        renderizarHistorico(res);
+        calcularHorasHoje(res);
       });
     }
 
-    function gerarPDF() {
-      const btn = document.getElementById('btnPdf');
-      btn.innerText = "Gerando... Aguarde"; btn.disabled = true;
-      const mes = document.getElementById('pdfMes').value;
+    function renderizarHistorico(lista) {
+      const div = document.getElementById('listaHistorico');
+      if(lista.length === 0) return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
+      div.innerHTML = lista.map(h => {
+        let cor = h.tipo === 'Anotação' ? 'var(--orange)' : 'var(--blue)';
+        let icone = h.tipo === 'Anotação' ? '📝' : '🕒';
+        return `
+        <div style="padding:12px; border-radius:10px; border:1px solid #eee; margin-bottom:10px; background:#fafafa;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:${cor};">${icone} ${h.tipo}</strong>
+            <span style="font-weight:700;">${h.hora}</span>
+          </div>
+          <div style="font-size:12px; color:var(--subtext); margin-top:5px;">📅 ${h.data} • 📍 ${h.status}</div>
+          ${h.obs ? `<div style="margin-top:5px; font-size:12px; background:#fff; padding:6px; border-radius:6px; border-left:3px solid ${cor};">${h.obs}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
 
+    function calcularHorasHoje(lista) {
+      const hojeStr = document.getElementById('fData').value.split('-').reverse().join('/');
+      const regsHoje = lista.filter(h => h.data === hojeStr);
+      
+      let minsTrabalhados = 0;
+      let hrEntrada = null, hrAlmoco = null, hrRetorno = null, hrSaida = null;
+
+      regsHoje.forEach(r => {
+        let mins = parseInt(r.hora.split(':')[0])*60 + parseInt(r.hora.split(':')[1]);
+        if(r.tipo === 'Entrada') hrEntrada = mins;
+        if(r.tipo === 'Almoço') hrAlmoco = mins;
+        if(r.tipo === 'Retorno') hrRetorno = mins;
+        if(r.tipo === 'Saída Final') hrSaida = mins;
+      });
+
+      if(hrEntrada && hrSaida) {
+        minsTrabalhados = hrSaida - hrEntrada;
+        if(hrAlmoco && hrRetorno) minsTrabalhados -= (hrRetorno - hrAlmoco);
+      } else if (hrEntrada && !hrSaida) {
+        const agora = new Date();
+        const minsAgora = agora.getHours()*60 + agora.getMinutes();
+        minsTrabalhados = minsAgora - hrEntrada;
+        if(hrAlmoco && hrRetorno) minsTrabalhados -= (hrRetorno - hrAlmoco);
+        else if (hrAlmoco && !hrRetorno) minsTrabalhados -= (minsAgora - hrAlmoco);
+      }
+
+      if(minsTrabalhados > 0) {
+        let h = Math.floor(minsTrabalhados/60); let m = minsTrabalhados%60;
+        document.getElementById('horasHoje').innerText = `${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}m`;
+      } else {
+        document.getElementById('horasHoje').innerText = "00h00m";
+      }
+    }
+
+    function renderizarFeriados(feriados) {
+      document.getElementById('listaFeriados').innerHTML = feriados.map(f => `
+        <div style="padding:12px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:14px; font-weight:600;">${f.nome}</div>
+            <div style="font-size:12px; color:var(--subtext); margin-top:2px;">${f.data} • ${f.tipo}</div>
+          </div>
+          <span class="tag tag-${f.ref}">${f.ref}</span>
+        </div>
+      `).join('');
+    }
+
+    function gerarPDF() {
+      const btn = document.getElementById('btnPdf'); btn.innerText = "Gerando..."; btn.disabled = true;
+      const mes = document.getElementById('pdfMes').value;
       fetch(WEB_APP_URL, {
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ acao: "pdf", login: currentUser.loginID, mes: mes, ano: 2026 })
-      }).then(r => r.json()).then(base64 => {
-        btn.innerText = "Baixar Documento"; btn.disabled = false;
-        if(!base64) return abrirModal("Aviso", "Sem registros para este mês.", "erro");
-
-        const link = document.createElement('a');
-        link.href = "data:application/pdf;base64," + base64;
-        link.download = `Folha_Ponto_${mes}_2026.pdf`;
-        link.click();
-      }).catch(err => {
-        btn.innerText = "Baixar Documento"; btn.disabled = false;
-        abrirModal("Erro", "Falha ao gerar o PDF.", "erro");
+      }).then(r => r.json()).then(b64 => {
+        btn.innerText = "Baixar Folha PDF"; btn.disabled = false;
+        if(!b64) return abrirModal("Aviso", "Sem registros no mês.", "erro");
+        const a = document.createElement('a'); a.href = "data:application/pdf;base64," + b64;
+        a.download = `Folha_Ponto_${mes}_2026.pdf`; a.click();
       });
     }
 
     function show(v, btnObj) {
       document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
       document.querySelectorAll('.tab-item').forEach(x => x.classList.remove('active'));
-      document.getElementById('view-'+v).classList.add('active'); 
-      if(btnObj) btnObj.classList.add('active');
+      document.getElementById('view-'+v).classList.add('active'); btnObj.classList.add('active');
     }
 
-    function logout() { location.reload(); }
-
-    // Preencher data, hora e mês atual automaticamente
+    // Inicialização
     const n = new Date();
     document.getElementById('fData').valueAsDate = n;
     document.getElementById('fHora').value = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
