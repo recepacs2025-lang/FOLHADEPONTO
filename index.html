@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>UBS Laranjeiras - Ponto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --text: #1C1C1E; --subtext: #8E8E93; }
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); margin: 0; padding-bottom: 100px; color: var(--text); }
+    
+    /* Login Screen */
+    #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .login-box { background:white; padding:30px; border-radius:20px; width:100%; max-width:350px; box-shadow:0 10px 25px rgba(0,0,0,0.1); text-align:center; }
+    
+    .header { background: white; padding: 30px 20px 15px; border-bottom: 1px solid rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 50; }
+    .container { padding: 15px; }
+    .card { background: var(--card); border-radius: 14px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+    input, select { width: 100%; background: #F2F2F7; border: none; border-radius: 10px; padding: 12px; font-size: 16px; margin-bottom: 15px; }
+    .btn { width: 100%; background: var(--blue); color: white; font-size: 17px; font-weight: 600; border: none; border-radius: 12px; padding: 14px; cursor: pointer; }
+    .tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: white; display: flex; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; }
+    .view { display: none; } .view.active { display: block; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; justify-content: center; align-items: center; }
+    .modal-box { background: white; width: 270px; border-radius: 14px; text-align: center; padding: 20px; }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN -->
+  <div id="login-screen">
+    <div class="login-box">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:80px; margin-bottom:20px;">
+      <h2>Acesso Restrito</h2>
+      <input type="text" id="lUser" placeholder="Usuário (ex: karina)">
+      <input type="password" id="lPass" placeholder="Senha">
+      <button class="btn" onclick="fazerLogin()">Entrar</button>
+      <p id="loginError" style="color:red; font-size:12px; margin-top:10px; display:none;">Usuário ou senha incorretos!</p>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL (OCULTO ATÉ LOGIN) -->
+  <div id="main-content" style="display:none;">
+    <div class="header">
+      <h1 id="userName">Nome do Usuário</h1>
+      <p id="userCargo" style="color:var(--blue); font-weight:600; margin:0;">Cargo</p>
+    </div>
+
+    <div class="container">
+      <div id="view-ponto" class="view active">
+        <div class="card">
+          <div id="gpsStatus" style="text-align:center; font-weight:bold; color:red; margin-bottom:10px;">📍 Buscando GPS...</div>
+          <input type="date" id="fData">
+          <input type="time" id="fHora">
+          <select id="fTipo">
+            <option value="Entrada">Entrada</option>
+            <option value="Almoço">Início Almoço</option>
+            <option value="Retorno">Retorno Almoço</option>
+            <option value="Saída Final">Saída Final</option>
+          </select>
+          <input type="text" id="fObs" placeholder="Observação (opcional)">
+          <button class="btn" onclick="enviarPonto()">Registrar Ponto</button>
+        </div>
+        
+        <div class="card">
+           <h3>Gerar PDF</h3>
+           <select id="pdfMes">
+             <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+             <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+             <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+             <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+           </select>
+           <button class="btn" style="background:var(--green)" onclick="gerarPDF()">Baixar PDF</button>
+        </div>
+      </div>
+      
+      <div id="view-historico" class="view">
+        <div class="card" id="listaHistorico">Carregando histórico...</div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button onclick="show('ponto')">Ponto</button>
+      <button onclick="show('historico')">Histórico</button>
+      <button onclick="logout()">Sair</button>
+    </div>
+  </div>
+
+  <script>
+    // COLE SEU URL DO GOOGLE AQUI ABAIXO:
+    const WEB_APP_URL = "SUA_URL_DO_GOOGLE_SCRIPTS_AQUI";
+
+    let currentUser = null;
+    let geo = { lat: 0, lon: 0, ok: false };
+
+    function fazerLogin() {
+      const login = document.getElementById('lUser').value.toLowerCase();
+      const senha = document.getElementById('lPass').value;
+      
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ acao: "login", login: login, senha: senha })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if(res.autorizado) {
+          currentUser = res;
+          currentUser.loginID = login;
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('main-content').style.display = 'block';
+          document.getElementById('userName').innerText = res.user.nome;
+          document.getElementById('userCargo').innerText = res.user.cargo;
+          iniciarGps();
+          carregarHistorico();
+        } else {
+          document.getElementById('loginError').style.display = 'block';
+        }
+      });
+    }
+
+    function iniciarGps() {
+      navigator.geolocation.watchPosition(pos => {
+        geo.lat = pos.coords.latitude; geo.lon = pos.coords.longitude;
+        const dist = calcularDistancia(geo.lat, geo.lon, currentUser.ubsGeo.lat, currentUser.ubsGeo.lon);
+        geo.ok = dist <= 300; // 300 metros
+        const g = document.getElementById('gpsStatus');
+        g.innerText = geo.ok ? "📍 Dentro da UBS" : "📍 Fora do Perímetro";
+        g.style.color = geo.ok ? "var(--green)" : "var(--red)";
+      });
+    }
+
+    function calcularDistancia(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const dLat = (lat2-lat1) * Math.PI/180;
+      const dLon = (lon2-lon1) * Math.PI/180;
+      const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function enviarPonto() {
+      const dados = {
+        usuario: currentUser.user.nome,
+        dataManual: document.getElementById('fData').value.split('-').reverse().join('/'),
+        horaManual: document.getElementById('fHora').value,
+        tipo: document.getElementById('fTipo').value,
+        lat: geo.lat, lon: geo.lon, noLocal: geo.ok,
+        obs: document.getElementById('fObs').value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ acao: "registrar", dados: dados })
+      }).then(() => { alert("Ponto Registrado!"); carregarHistorico(); });
+    }
+
+    function carregarHistorico() {
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ acao: "historico", nome: currentUser.user.nome })
+      }).then(r => r.json()).then(res => {
+        document.getElementById('listaHistorico').innerHTML = res.map(h => `
+          <div style="border-bottom:1px solid #eee; padding:10px 0;">
+            <b>${h.tipo}</b> - ${h.data} às ${h.hora}<br>
+            <small>${h.status} | ${h.obs}</small>
+          </div>
+        `).join('');
+      });
+    }
+
+    function gerarPDF() {
+      const mes = document.getElementById('pdfMes').value;
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ acao: "pdf", login: currentUser.loginID, mes: mes, ano: 2026 })
+      }).then(r => r.json()).then(base64 => {
+        const link = document.createElement('a');
+        link.href = "data:application/pdf;base64," + base64;
+        link.download = "Ponto.pdf";
+        link.click();
+      });
+    }
+
+    function show(view) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + view).classList.add('active');
+    }
+
+    function logout() { location.reload(); }
+
+    // Preencher data e hora atual
+    const n = new Date();
+    document.getElementById('fData').valueAsDate = n;
+    document.getElementById('fHora').value = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
+  </script>
+</body>
+</html>
