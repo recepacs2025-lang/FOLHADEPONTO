@@ -6,7 +6,7 @@
   <title>UBS Laranjeiras - Ponto Inteligente</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --orange: #FF9500; --text: #1C1C1E; --subtext: #8E8E93; }
+    :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --orange: #FF9500; --purple: #AF52DE; --text: #1C1C1E; --subtext: #8E8E93; }
     * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
     
@@ -31,11 +31,12 @@
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-green { background: var(--green); }
     .btn-orange { background: var(--orange); }
+    .btn-purple { background: var(--purple); }
 
     /* Dashboard Stats */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     .stat-box { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #eee; }
-    .stat-box h4 { margin: 0; font-size: 24px; font-weight: 800; color: var(--blue); }
+    .stat-box h4 { margin: 0; font-size: 22px; font-weight: 800; color: var(--blue); }
     .stat-box span { font-size: 11px; font-weight: 600; color: var(--subtext); text-transform: uppercase; }
 
     /* Nav Bar */
@@ -45,17 +46,13 @@
     .view { display: none; } .view.active { display: block; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Feriados Tags */
-    .tag { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
-    .tag-A { background: #ffebee; color: #c62828; } .tag-B { background: #e3f2fd; color: #1565c0; }
-    .tag-C { background: #f3e5f5; color: #6a1b9a; } .tag-D { background: #fff3e0; color: #ef6c00; }
-
-    /* Modal */
+    /* Modal iOS */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; }
-    .modal-box { background: white; width: 280px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: scaleUp 0.2s; }
-    .modal-box h3 { margin: 15px 0 5px; font-size: 18px; }
-    .modal-box p { margin: 0 15px 20px; font-size: 14px; color: var(--subtext); }
-    .modal-btn { width: 100%; border: none; border-top: 1px solid #eee; background: transparent; color: var(--blue); font-size: 16px; font-weight: 700; padding: 15px; cursor: pointer; border-radius: 0 0 16px 16px; }
+    .modal-box { background: white; width: 290px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: scaleUp 0.2s; overflow: hidden; }
+    .modal-box h3 { margin: 20px 0 5px; font-size: 18px; }
+    .modal-box p { margin: 0 15px 20px; font-size: 14px; color: var(--subtext); line-height:1.4; }
+    .modal-btn { width: 100%; border: none; border-top: 1px solid #eee; background: transparent; color: var(--blue); font-size: 16px; font-weight: 700; padding: 15px; cursor: pointer; }
+    .modal-btn-cancel { color: var(--red); font-weight: 500; }
     @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
@@ -66,7 +63,7 @@
     <div class="login-box">
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:70px;">
       <h2>Ponto Inteligente</h2>
-      <input type="text" id="lUser" placeholder="Usuário (ex: karina,Alane,Mauricio)" style="text-transform: lowercase;">
+      <input type="text" id="lUser" placeholder="Usuário (ex: karina, Alane, Mauricio)" style="text-transform: lowercase;">
       <input type="password" id="lPass" placeholder="Senha">
       <button class="btn" id="btnLogin" onclick="fazerLogin()">Entrar Seguramente</button>
       <p id="loginError" style="color:var(--red); font-size:13px; margin-top:15px; display:none; font-weight:600;"></p>
@@ -88,16 +85,18 @@
         <div class="grid-2">
           <div class="stat-box">
             <h4 id="horasHoje">00:00</h4>
-            <span>Trabalhado Hoje</span>
+            <span>Tempo Trabalhado</span>
           </div>
           <div class="stat-box">
-            <h4 id="statusGps">--</h4>
-            <span>Status GPS</span>
+            <h4 id="saldoHoras" style="color:var(--subtext)">--</h4>
+            <span>Saldo do Dia (8h)</span>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-title">Registrar Movimento</div>
+          <div class="card-title" style="display:flex; justify-content:space-between;">
+            Registrar Ponto <span id="statusGps" style="color:var(--red);">📍 GPS</span>
+          </div>
           <div style="display:flex; gap:10px">
             <div style="flex:1"><label>Data</label><input type="date" id="fData"></div>
             <div style="flex:1"><label>Hora</label><input type="time" id="fHora"></div>
@@ -108,11 +107,12 @@
             <option value="Almoço">🍽️ Início Almoço</option>
             <option value="Retorno">🔙 Retorno Almoço</option>
             <option value="Saída Final">📤 Saída Final</option>
-            <option value="Anotação">📝 Apenas Anotação/Ocorrência</option>
+            <option value="Folga">🏖️ Dia de Folga</option>
+            <option value="Anotação">📝 Apenas Ocorrência</option>
           </select>
           <div id="boxObs">
             <label>Observação / Justificativa</label>
-            <textarea id="fObs" placeholder="Ex: Fui ao médico, atraso devido a trânsito..."></textarea>
+            <textarea id="fObs" placeholder="Ex: Atraso devido a trânsito..."></textarea>
           </div>
           <button class="btn" id="btnRegistrar" onclick="enviarPonto()">Registrar Ponto</button>
         </div>
@@ -121,7 +121,7 @@
       <!-- ABA 2: RELATÓRIOS E HORAS -->
       <div id="view-relatorios" class="view">
         <div class="card">
-          <div class="card-title">Folha Mensal (PDF)</div>
+          <div class="card-title">Folha Mensal Oficial (PDF)</div>
           <div style="display:flex; gap:10px;">
             <select id="pdfMes" style="flex:2">
               <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
@@ -131,7 +131,7 @@
             </select>
             <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
           </div>
-          <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Folha PDF</button>
+          <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Folha Oficial</button>
         </div>
 
         <div class="card">
@@ -140,46 +140,45 @@
         </div>
       </div>
 
-      <!-- ABA 3: CALENDÁRIO E FERIADOS -->
+      <!-- ABA 3: CALENDÁRIO -->
       <div id="view-calendario" class="view">
         <div class="card">
           <div class="card-title">Calendário 2026</div>
-          <div style="font-size:11px; color:var(--subtext); margin-bottom:15px; display:flex; flex-wrap:wrap; gap:5px;">
-            <span class="tag tag-A">A - Leis Federais</span>
-            <span class="tag tag-B">B - Leis Municipais</span>
-            <span class="tag tag-C">C - Lei Estadual</span>
-            <span class="tag tag-D">D - Facultativo</span>
-          </div>
           <div id="listaFeriados"></div>
         </div>
       </div>
-
     </div>
 
     <!-- NAVEGAÇÃO -->
     <div class="tab-bar">
       <button class="tab-item active" onclick="show('dashboard', this)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        Início
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Início
       </button>
       <button class="tab-item" onclick="show('relatorios', this)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Relatórios
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>Relatórios
       </button>
       <button class="tab-item" onclick="show('calendario', this)">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        Feriados
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Feriados
       </button>
       <button class="tab-item" onclick="location.reload()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        Sair
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sair
       </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE AUTO-PONTO E SUCESSO -->
+  <div id="autoPontoModal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 style="color:var(--green); font-size:24px; margin-top:15px;">📍 Você chegou!</h3>
+      <p>O GPS detectou que você está na UBS Laranjeiras. Deseja bater seu ponto de <b>ENTRADA</b> agora?</p>
+      <button class="modal-btn" style="color:white; background:var(--green);" onclick="confirmarAutoPonto()">Sim, Bater Entrada</button>
+      <button class="modal-btn modal-btn-cancel" onclick="fecharAutoPonto()">Não, agora não</button>
     </div>
   </div>
 
   <div id="customModal" class="modal-overlay">
     <div class="modal-box">
-      <div class="modal-icon" id="modalIcon" style="font-size:50px; margin-top:20px;">✅</div>
+      <div id="modalIcon" style="font-size:40px; margin-top:20px;">✅</div>
       <h3 id="modalTitle">Sucesso</h3><p id="modalMsg">Mensagem</p>
       <button class="modal-btn" onclick="document.getElementById('customModal').style.display='none'">OK</button>
     </div>
@@ -188,10 +187,11 @@
   <script>
     // ==========================================
     // COLE SUA NOVA URL DO GOOGLE SCRIPTS AQUI
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbza82S3uh7-vdofh7oyGyDRqw-BTOaCwVRBZe62x_cR72lGFvmrSU89mHlrmfuLWs7t/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz2C7CMDee5LlUPCkYzTcEMjuWd-DzztpLIvQyi7h02nfI_2lmRr2gZcMCiDpzDelrP/exec";
     // ==========================================
 
-    let currentUser = null; let geo = { lat: 0, lon: 0, ok: false }; let historicoGlobal = [];
+    let currentUser = null; let geo = { lat: 0, lon: 0, ok: false }; 
+    let historicoGlobal = []; let autoPontoJaOferecido = false;
 
     function abrirModal(titulo, msg, tipo='sucesso') {
       document.getElementById('modalTitle').innerText = titulo;
@@ -201,9 +201,11 @@
     }
 
     function mudarFormulario() {
-      const isNota = document.getElementById('fTipo').value === "Anotação";
-      document.getElementById('btnRegistrar').className = isNota ? "btn btn-orange" : "btn";
-      document.getElementById('btnRegistrar').innerText = isNota ? "Salvar Anotação" : "Registrar Ponto";
+      const v = document.getElementById('fTipo').value;
+      const btn = document.getElementById('btnRegistrar');
+      if(v === "Anotação") { btn.className = "btn btn-orange"; btn.innerText = "Salvar Anotação"; }
+      else if(v === "Folga") { btn.className = "btn btn-purple"; btn.innerText = "Registrar Folga"; }
+      else { btn.className = "btn"; btn.innerText = "Registrar Ponto"; }
     }
 
     function fazerLogin() {
@@ -212,7 +214,7 @@
       const btn = document.getElementById('btnLogin');
       const err = document.getElementById('loginError');
 
-      if(!login || !senha) { err.innerText="Preencha os campos."; err.style.display='block'; return; }
+      if(!login || !senha) return;
       btn.innerText = "Conectando..."; btn.disabled = true; err.style.display = 'none';
       
       fetch(WEB_APP_URL, {
@@ -225,7 +227,7 @@
           document.getElementById('main-content').style.display = 'block';
           document.getElementById('userName').innerText = res.user.nome;
           document.getElementById('userCargo').innerText = res.user.cargo;
-          iniciarGps(); renderizarFeriados(res.feriados); carregarHistorico();
+          carregarHistorico(); iniciarGps(); renderizarFeriados(res.feriados); 
         } else {
           btn.innerText = "Entrar Seguramente"; btn.disabled = false;
           err.innerText = "Credenciais incorretas!"; err.style.display = 'block';
@@ -241,9 +243,26 @@
         geo.ok = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) <= 250;
         
         const gs = document.getElementById('statusGps');
-        gs.innerText = geo.ok ? "Local" : "Distante";
+        gs.innerText = geo.ok ? "📍 Na UBS" : "📍 Fora";
         gs.style.color = geo.ok ? "var(--green)" : "var(--red)";
+
+        // Lógica do Ponto Automático
+        if(geo.ok && !autoPontoJaOferecido) {
+            const hojeStr = document.getElementById('fData').value.split('-').reverse().join('/');
+            const jaBateuEntrada = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Entrada');
+            if(!jaBateuEntrada && historicoGlobal.length > 0) { // Garante que histórico já carregou
+                autoPontoJaOferecido = true;
+                document.getElementById('autoPontoModal').style.display = 'flex';
+            }
+        }
       }, null, {enableHighAccuracy: true});
+    }
+
+    function fecharAutoPonto() { document.getElementById('autoPontoModal').style.display = 'none'; }
+    function confirmarAutoPonto() {
+        fecharAutoPonto();
+        document.getElementById('fTipo').value = "Entrada";
+        enviarPonto();
     }
 
     function enviarPonto() {
@@ -278,8 +297,9 @@
       const div = document.getElementById('listaHistorico');
       if(lista.length === 0) return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
       div.innerHTML = lista.map(h => {
-        let cor = h.tipo === 'Anotação' ? 'var(--orange)' : 'var(--blue)';
-        let icone = h.tipo === 'Anotação' ? '📝' : '🕒';
+        let cor = 'var(--blue)'; let icone = '🕒';
+        if(h.tipo === 'Anotação') { cor = 'var(--orange)'; icone = '📝'; }
+        if(h.tipo === 'Folga') { cor = 'var(--purple)'; icone = '🏖️'; }
         return `
         <div style="padding:12px; border-radius:10px; border:1px solid #eee; margin-bottom:10px; background:#fafafa;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -296,44 +316,63 @@
       const hojeStr = document.getElementById('fData').value.split('-').reverse().join('/');
       const regsHoje = lista.filter(h => h.data === hojeStr);
       
-      let minsTrabalhados = 0;
-      let hrEntrada = null, hrAlmoco = null, hrRetorno = null, hrSaida = null;
-
+      let hrEntrada = null, hrAlmoco = null, hrRetorno = null, hrSaida = null, teveFolga = false;
       regsHoje.forEach(r => {
         let mins = parseInt(r.hora.split(':')[0])*60 + parseInt(r.hora.split(':')[1]);
         if(r.tipo === 'Entrada') hrEntrada = mins;
         if(r.tipo === 'Almoço') hrAlmoco = mins;
         if(r.tipo === 'Retorno') hrRetorno = mins;
         if(r.tipo === 'Saída Final') hrSaida = mins;
+        if(r.tipo === 'Folga') teveFolga = true;
       });
 
+      if(teveFolga) {
+        document.getElementById('horasHoje').innerText = "FOLGA";
+        document.getElementById('saldoHoras').innerText = "Dia Livre";
+        document.getElementById('saldoHoras').style.color = "var(--purple)";
+        return;
+      }
+
+      let minsTrabalhados = 0;
       if(hrEntrada && hrSaida) {
         minsTrabalhados = hrSaida - hrEntrada;
         if(hrAlmoco && hrRetorno) minsTrabalhados -= (hrRetorno - hrAlmoco);
       } else if (hrEntrada && !hrSaida) {
-        const agora = new Date();
-        const minsAgora = agora.getHours()*60 + agora.getMinutes();
+        const agora = new Date(); const minsAgora = agora.getHours()*60 + agora.getMinutes();
         minsTrabalhados = minsAgora - hrEntrada;
         if(hrAlmoco && hrRetorno) minsTrabalhados -= (hrRetorno - hrAlmoco);
         else if (hrAlmoco && !hrRetorno) minsTrabalhados -= (minsAgora - hrAlmoco);
       }
 
-      if(minsTrabalhados > 0) {
-        let h = Math.floor(minsTrabalhados/60); let m = minsTrabalhados%60;
-        document.getElementById('horasHoje').innerText = `${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}m`;
+      // Display Total Worked
+      let hTrabalhada = Math.floor(minsTrabalhados/60); let mTrabalhada = minsTrabalhados%60;
+      document.getElementById('horasHoje').innerText = `${String(hTrabalhada).padStart(2,'0')}h${String(mTrabalhada).padStart(2,'0')}m`;
+
+      // Display Saldo (Base 8h = 480 mins)
+      if(hrEntrada && hrSaida) {
+        let saldoMinutos = minsTrabalhados - 480;
+        let sinal = saldoMinutos >= 0 ? "+" : "-";
+        saldoMinutos = Math.abs(saldoMinutos);
+        let hS = Math.floor(saldoMinutos/60); let mS = saldoMinutos%60;
+        let textSaldo = `${sinal}${String(hS).padStart(2,'0')}h${String(mS).padStart(2,'0')}m`;
+        
+        let labelSaldo = document.getElementById('saldoHoras');
+        labelSaldo.innerText = textSaldo;
+        labelSaldo.style.color = sinal === "+" ? "var(--green)" : "var(--red)";
       } else {
-        document.getElementById('horasHoje').innerText = "00h00m";
+        document.getElementById('saldoHoras').innerText = "Em andamento...";
+        document.getElementById('saldoHoras').style.color = "var(--subtext)";
       }
     }
 
     function renderizarFeriados(feriados) {
       document.getElementById('listaFeriados').innerHTML = feriados.map(f => `
-        <div style="padding:12px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+        <div style="padding:10px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-size:14px; font-weight:600;">${f.nome}</div>
-            <div style="font-size:12px; color:var(--subtext); margin-top:2px;">${f.data} • ${f.tipo}</div>
+            <div style="font-size:13px; font-weight:600;">${f.nome}</div>
+            <div style="font-size:11px; color:var(--subtext);">${f.data}</div>
           </div>
-          <span class="tag tag-${f.ref}">${f.ref}</span>
+          <span style="font-size:10px; font-weight:bold; background:#e0e0e0; padding:3px 6px; border-radius:4px;">${f.ref}</span>
         </div>
       `).join('');
     }
@@ -345,10 +384,10 @@
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ acao: "pdf", login: currentUser.loginID, mes: mes, ano: 2026 })
       }).then(r => r.json()).then(b64 => {
-        btn.innerText = "Baixar Folha PDF"; btn.disabled = false;
+        btn.innerText = "Baixar Folha Oficial"; btn.disabled = false;
         if(!b64) return abrirModal("Aviso", "Sem registros no mês.", "erro");
         const a = document.createElement('a'); a.href = "data:application/pdf;base64," + b64;
-        a.download = `Folha_Ponto_${mes}_2026.pdf`; a.click();
+        a.download = `Ponto_UBS_${mes}_2026.pdf`; a.click();
       });
     }
 
