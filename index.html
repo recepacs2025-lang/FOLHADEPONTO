@@ -351,7 +351,7 @@
     function renderizarHistorico(lista) {
       const div = document.getElementById('listaHistorico');
       const spanGeral = document.getElementById('totalHorasGeral');
-      
+      
       if(lista.length === 0) {
         if(spanGeral) spanGeral.innerText = "0h 00m";
         return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
@@ -368,11 +368,11 @@
         if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora;
         if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
         if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
-        if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`); // Guarda anotações
+        if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
       });
 
       let totalMinutosGeral = 0;
-      
+      
       // 2. Construir Cabeçalho da Tabela
       let html = `
         <div style="overflow-x:auto;">
@@ -390,7 +390,6 @@
             <tbody>
       `;
 
-      // Ordenar as datas da mais recente para a mais antiga (melhor experiência)
       let datasSorted = Object.keys(diasAgrupados).sort((a,b) => {
         let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/');
         return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1);
@@ -409,7 +408,11 @@
           let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null;
           let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
 
-          let minTrab = (mSai - mEnt) - ((mAlm && mRet) ? (mRet - mAlm) : 0);
+          // CÁLCULO BLINDADO (Aceita virada de noite e horário 00:00)
+          let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+          let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+          let minTrab = tempoBruto - tempoPausa;
+
           totalMinutosGeral += minTrab;
 
           let hStr = Math.floor(minTrab/60).toString().padStart(2,'0');
@@ -417,9 +420,8 @@
           totalDiaStr = `${hStr}h${mStr}`;
         }
 
-        // Cor especial para dias de folga
         let trStyle = d.folga ? 'background:#f4e6fa;' : 'border-bottom:1px solid #f9f9f9;';
-        
+        
         html += `
           <tr style="${trStyle}">
             <td style="padding:12px 2px; font-weight:700; color:var(--text);">${d.data.substring(0,5)}</td>
@@ -431,7 +433,6 @@
           </tr>
         `;
 
-        // Renderizar anotações logo abaixo da linha do dia, se houver
         if (d.obs.length > 0) {
           html += `<tr><td colspan="6" style="padding:4px 8px 10px; font-size:11px; text-align:left; background:#fffdf5; color:#888; border-bottom:1px solid #eee;">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</td></tr>`;
         }
@@ -440,7 +441,6 @@
       html += `</tbody></table></div>`;
       div.innerHTML = html;
 
-      // 4. Atualizar o Contador Geral da Casa
       let htGeral = Math.floor(totalMinutosGeral/60);
       let mtGeral = totalMinutosGeral % 60;
       if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
@@ -451,60 +451,66 @@
     function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}m`; }
 
     function calcularPainelHoras(lista) {
-      const hojeStr = new Date().toLocaleDateString('pt-BR');
-      const mesAtual = hojeStr.substring(3); // Pega "MM/YYYY"
-      
-      // Reseta a linha do tempo
-      document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
-      document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
+      const hojeStr = new Date().toLocaleDateString('pt-BR');
+      const mesAtual = hojeStr.substring(3);
+      
+      document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
+      document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
 
-      // == CALCULO DO DIA DE HOJE ==
-      const regsHoje = lista.filter(h => h.data === hojeStr);
-      let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
-      regsHoje.forEach(r => {
-        if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
-        if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
-        if(r.tipo === 'Retorno') { mRet = getMinutos(r.hora); document.getElementById('tl-ret').innerText = r.hora; }
-        if(r.tipo === 'Saída Final') { mSai = getMinutos(r.hora); document.getElementById('tl-sai').innerText = r.hora; }
-        if(r.tipo === 'Folga') folgaH = true;
-      });
+      // == CALCULO DO DIA DE HOJE ==
+      const regsHoje = lista.filter(h => h.data === hojeStr);
+      let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
+      regsHoje.forEach(r => {
+        if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
+        if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
+        if(r.tipo === 'Retorno') { mRet = getMinutos(r.hora); document.getElementById('tl-ret').innerText = r.hora; }
+        if(r.tipo === 'Saída Final') { mSai = getMinutos(r.hora); document.getElementById('tl-sai').innerText = r.hora; }
+        if(r.tipo === 'Folga') folgaH = true;
+      });
 
-      let boxH = document.getElementById('saldoHoje');
-      if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
-      else if(mEnt && mSai) {
-        let minTrabHoje = (mSai - mEnt) - ( (mAlm && mRet) ? (mRet - mAlm) : 0 );
-        let saldoMin = minTrabHoje - 480;
-        boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
-        boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
-      } else {
-        boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)";
-      }
+      let boxH = document.getElementById('saldoHoje');
+      if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
+      else if(mEnt !== null && mSai !== null) {
+        // CÁLCULO BLINDADO HOJE
+        let tempoBrutoHoje = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+        let tempoPausaHoje = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+        let minTrabHoje = tempoBrutoHoje - tempoPausaHoje;
 
-      // == CALCULO DO MÊS INTEIRO ==
-      const regsMes = lista.filter(h => h.data.endsWith(mesAtual));
-      let diasAgrupados = {};
-      regsMes.forEach(r => {
-        if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora);
-        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora);
-        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
-        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
-      });
+        let saldoMin = minTrabHoje - 480; // Base 8h
+        boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
+        boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
+      } else {
+        boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)";
+      }
 
-      let saldoMesMins = 0;
-      for (let dia in diasAgrupados) {
-        let d = diasAgrupados[dia];
-        if(!d.folga && d.ent && d.sai) {
-            let minTrab = (d.sai - d.ent) - ( (d.alm && d.ret) ? (d.ret - d.alm) : 0 );
-            saldoMesMins += (minTrab - 480);
-        }
-      }
+      // == CALCULO DO MÊS INTEIRO ==
+      const regsMes = lista.filter(h => h.data.endsWith(mesAtual));
+      let diasAgrupados = {};
+      regsMes.forEach(r => {
+        if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
+        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora);
+        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
+        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora);
+        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
+        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
+      });
 
-      let boxM = document.getElementById('saldoMes');
-      boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
-      boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
-    }
+      let saldoMesMins = 0;
+      for (let dia in diasAgrupados) {
+        let d = diasAgrupados[dia];
+        if(!d.folga && d.ent !== null && d.sai !== null) {
+            // CÁLCULO BLINDADO MÊS
+            let tempoBrutoMes = (d.sai < d.ent) ? (d.sai + 1440 - d.ent) : (d.sai - d.ent);
+            let tempoPausaMes = (d.alm !== null && d.ret !== null) ? (d.ret < d.alm ? d.ret + 1440 - d.alm : d.ret - d.alm) : 0;
+            let minTrab = tempoBrutoMes - tempoPausaMes;
+            saldoMesMins += (minTrab - 480);
+        }
+      }
+
+      let boxM = document.getElementById('saldoMes');
+      boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
+      boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
+    }
 
     function renderizarFeriados(feriados) {
       document.getElementById('listaFeriados').innerHTML = feriados.map(f => `
