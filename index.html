@@ -61,6 +61,30 @@
     .modal-btn { width: 100%; border: none; border-top: 1px solid #eee; background: transparent; color: var(--blue); font-size: 16px; font-weight: 700; padding: 15px; cursor: pointer; }
     .modal-btn-cancel { color: var(--red); font-weight: 500; }
     @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* ==========================================
+       ESTILOS DA FOLHA A4 (MODELO TRADICIONAL)
+       ========================================== */
+    .page { 
+      background-color: white; width: 210mm; min-height: 297mm;
+      padding: 15mm; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      margin: 0 auto; color: #000; font-family: Arial, sans-serif; position: relative;
+    }
+    .page table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+    .page th, .page td { border: 1px solid #000; padding: 5px; height: 20px; }
+    .page th { font-size: 11px; }
+    .page-input { border: none; border-bottom: 1px solid #ccc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 14px; outline: none; background: transparent; }
+    .td-edit { font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; outline: none; cursor: text; }
+    .td-edit:hover { background-color: #eaf4ff; }
+    
+    /* Configuração para Imprimir APENAS a folha A4 */
+    @media print {
+      body * { visibility: hidden; }
+      #folha-a4, #folha-a4 * { visibility: visible; }
+      #folha-a4 { position: absolute; left: 0; top: 0; margin: 0; padding: 0; box-shadow: none; width: 100%; transform: none !important; }
+      .td-edit:hover { background-color: transparent; }
+      @page { margin: 0; size: A4 portrait; }
+    }
   </style>
 </head>
 <body>
@@ -201,6 +225,29 @@
       </div>
     </div>
 
+    <!-- ABA 4: ESPELHO TRADICIONAL (PAPEL A4) -->
+      <div id="view-tradicional" class="view">
+        <div class="card">
+          <div class="card-title">Gerar Espelho Físico (Editável)</div>
+          <div style="display:flex; gap:10px; margin-bottom:15px; align-items:flex-end;">
+            <div style="flex:1;">
+              <label>Mês de Fechamento (Dia 10)</label>
+              <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
+            </div>
+            <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
+          </div>
+          <p style="font-size:11px; color:var(--subtext); margin-top:-5px;">Dica: Toque em qualquer espaço na tabela abaixo para editar manualmente antes de imprimir.</p>
+        </div>
+
+        <!-- CONTAINER COM ROLAGEM HORIZONTAL PARA CELULAR -->
+        <div style="width: 100%; overflow-x: auto; background-color: #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+          <!-- AQUI FICA A FOLHA A4 -->
+          <div id="folha-a4" class="page">
+             <!-- O Javascript vai desenhar a folha inteira aqui dentro -->
+          </div>
+        </div>
+      </div>
+
     <!-- NAVEGAÇÃO -->
     <div class="tab-bar">
       <button class="tab-item active" onclick="show('dashboard', this)">
@@ -212,6 +259,11 @@
       <button class="tab-item" onclick="show('calendario', this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Calendário
       </button>
+
+      <button class="tab-item" onclick="show('tradicional', this); gerarFolhaTradicional();">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>Papel
+      </button>
+      
       <button class="tab-item" onclick="location.reload()">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sair
       </button>
@@ -544,6 +596,95 @@
     document.getElementById('fData').valueAsDate = n;
     document.getElementById('fHora').value = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
     document.getElementById('pdfMes').value = n.getMonth() + 1;
+
+    function gerarFolhaTradicional() {
+      if(!currentUser) return;
+      const valMes = document.getElementById('tradMesData').value; // Ex: "2026-04"
+      if(!valMes) return;
+      
+      let [ano, mes] = valMes.split('-');
+      ano = parseInt(ano); mes = parseInt(mes);
+      
+      let prevMes = mes - 1; let prevAno = ano;
+      if(prevMes === 0) { prevMes = 12; prevAno--; }
+
+      const dataInicio = new Date(prevAno, prevMes - 1, 11);
+      const dataFim = new Date(ano, mes - 1, 10);
+
+      let html = `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:80px; filter:grayscale(100%);">
+          <div style="text-align:right;">
+            <h2 style="margin:0; font-size:18px; font-weight:900;">Secretaria de Saúde</h2>
+            <p style="margin:2px 0 0; font-size:10px;">Av. Prof. Carvalho Pinto, 207 - 2º andar - Centro - Caieiras - SP<br>CEP: 07700-210 - Tel. 4445-9216</p>
+          </div>
+        </div>
+
+        <div style="font-size:12px; margin-bottom:15px; line-height:1.8;">
+          <div style="display:flex; justify-content:space-between;">
+            <div><b>Servidor:</b> <span class="page-input" contenteditable="true" style="min-width:250px; display:inline-block;">${currentUser.user.nome.toUpperCase()}</span></div>
+            <div><b>Período:</b> 11/${String(prevMes).padStart(2,'0')}/${prevAno} a 10/${String(mes).padStart(2,'0')}/${ano}</div>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <div><b>Cargo:</b> <span class="page-input" contenteditable="true" style="min-width:200px; display:inline-block;">${currentUser.user.cargo.toUpperCase()}</span></div>
+            <div><b>Prefeitura</b></div>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <div><b>Local de trabalho:</b> <span class="page-input" contenteditable="true" style="min-width:150px; display:inline-block;">UBS Laranjeiras</span></div>
+            <div><b>Horário:</b> <span class="page-input" contenteditable="true" style="min-width:80px; display:inline-block; text-align:center;">07h - 16h</span></div>
+          </div>
+        </div>
+
+        <table>
+          <tr style="background:#f0f0f0;">
+            <th>DIA</th><th>ENTRADA</th><th>INÍCIO/<br>ALMOÇO</th><th>TÉRMINO/<br>ALMOÇO</th><th>SAÍDA</th><th>ASSINATURA</th>
+          </tr>
+      `;
+
+      // Gerar as linhas do dia 11 ao 10
+      let curDate = new Date(dataInicio);
+      while(curDate <= dataFim) {
+        let diaStr = curDate.getDate();
+        let diaSemana = curDate.getDay();
+        let dataIso = curDate.toLocaleDateString('pt-BR'); // Ex: "11/03/2026"
+
+        // Busca se existe registro no histórico para esse dia específico
+        let regsDia = historicoGlobal.filter(h => h.data === dataIso);
+        let e='--', ia='--', ta='--', s='--';
+        
+        regsDia.forEach(r => {
+          if(r.tipo === 'Entrada') e = r.hora;
+          if(r.tipo === 'Almoço') ia = r.hora;
+          if(r.tipo === 'Retorno') ta = r.hora;
+          if(r.tipo === 'Saída Final') s = r.hora;
+        });
+
+        // Fins de semana
+        if(diaSemana === 0 || diaSemana === 6) {
+          let nome = diaSemana === 0 ? "DOMINGO" : "SÁBADO";
+          html += `
+            <tr style="background:#d3d3d3; font-weight:bold;">
+              <td>${diaStr}</td>
+              <td colspan="5" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td>
+            </tr>`;
+        } else {
+          // Dia útil editável com auto-preenchimento
+          html += `
+            <tr>
+              <td style="font-weight:bold;">${diaStr}</td>
+              <td class="td-edit" contenteditable="true">${e !== '--' ? e : ''}</td>
+              <td class="td-edit" contenteditable="true">${ia !== '--' ? ia : ''}</td>
+              <td class="td-edit" contenteditable="true">${ta !== '--' ? ta : ''}</td>
+              <td class="td-edit" contenteditable="true">${s !== '--' ? s : ''}</td>
+              <td class="td-edit" contenteditable="true"></td>
+            </tr>`;
+        }
+        curDate.setDate(curDate.getDate() + 1); // avança 1 dia
+      }
+
+      html += `</table>`;
+      document.getElementById('folha-a4').innerHTML = html;
+    }
   </script>
 </body>
 </html>
