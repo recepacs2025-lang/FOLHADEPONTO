@@ -650,7 +650,30 @@
       }
   
       function obterNomeMes(numStr) { const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return meses[parseInt(numStr)-1] || numStr; }
-      function getMinutos(str) { if(!str || str === '--:--' || str.trim() === '') return null; let p = str.replace(/[^\d:]/g,'').split(':'); if(p.length !== 2) return null; return parseInt(p[0])*60 + parseInt(p[1]); }
+      function getMinutos(str) { 
+    if(!str || str === '--:--' || str.trim() === '') return null; 
+    
+    // Converte "h", "." e espaços para ":" (Ex: "08h00", "08.00" ou "08 00" viram "08:00")
+    str = str.toLowerCase().replace(/[h\.]/g, ':').replace(/\s/g, '');
+    
+    // Pega só digitos e os dois pontos
+    let p = str.replace(/[^\d:]/g,'').split(':'); 
+    
+    if(p.length === 2) {
+        let h = parseInt(p[0], 10) || 0;
+        let m = parseInt(p[1], 10) || 0;
+        return (h * 60) + m;
+    } 
+    // Se a pessoa digitou direto "0800" ou "800" (sem usar nenhum separador)
+    else if (p.length === 1 && p[0].length >= 3) {
+        let nums = p[0];
+        let h = parseInt(nums.substring(0, nums.length - 2), 10) || 0;
+        let m = parseInt(nums.substring(nums.length - 2), 10) || 0;
+        return (h * 60) + m;
+    }
+    
+    return null; 
+}
       function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`; }
   
       function calcularPainelHoras(lista) {
@@ -726,29 +749,53 @@
       }
   
       function calcularLinhaA4(celulaEditada) {
-          let tr = celulaEditada.parentElement;
-          let e = getMinutos(tr.querySelector('[data-col="e"]')?.innerText); let ia = getMinutos(tr.querySelector('[data-col="ia"]')?.innerText);
-          let ta = getMinutos(tr.querySelector('[data-col="ta"]')?.innerText); let s = getMinutos(tr.querySelector('[data-col="s"]')?.innerText);
-          
-          let tdTotal = tr.querySelector('.td-total'); if(!tdTotal) return;
-  
-          if(e !== null && s !== null) {
-              let tempoBruto = (s < e) ? (s + 1440 - e) : (s - e);
-              let tempoPausa = (ia !== null && ta !== null) ? (ta < ia ? ta + 1440 - ia : ta - ia) : 0;
-              let minTrab = tempoBruto - tempoPausa;
-              
-              let h = Math.floor(minTrab/60).toString().padStart(2,'0'); let m = (minTrab%60).toString().padStart(2,'0');
-              tdTotal.innerText = `${h}:${m}`; tdTotal.setAttribute('data-minutos', minTrab);
-          } else { tdTotal.innerText = ""; tdTotal.removeAttribute('data-minutos'); }
-          calcularTotalFolhaA4();
-      }
+    let tr = celulaEditada.parentElement;
+    let e = getMinutos(tr.querySelector('[data-col="e"]')?.innerText); 
+    let ia = getMinutos(tr.querySelector('[data-col="ia"]')?.innerText);
+    let ta = getMinutos(tr.querySelector('[data-col="ta"]')?.innerText); 
+    let s = getMinutos(tr.querySelector('[data-col="s"]')?.innerText);
+    
+    let tdTotal = tr.querySelector('.td-total'); 
+    if(!tdTotal) return;
+
+    if(e !== null && s !== null) {
+        let tempoBruto = (s < e) ? (s + 1440 - e) : (s - e);
+        let tempoPausa = (ia !== null && ta !== null) ? (ta < ia ? ta + 1440 - ia : ta - ia) : 0;
+        let minTrab = tempoBruto - tempoPausa;
+        
+        // PREVENÇÃO: Se der negativo (devido a um erro de digitação do usuário), zera para não quebrar a soma
+        if(minTrab < 0) minTrab = 0;
+        
+        let h = Math.floor(minTrab/60).toString().padStart(2,'0'); 
+        let m = (minTrab%60).toString().padStart(2,'0');
+        tdTotal.innerText = `${h}:${m}`; 
+        tdTotal.setAttribute('data-minutos', minTrab);
+    } else { 
+        tdTotal.innerText = ""; 
+        tdTotal.removeAttribute('data-minutos'); 
+    }
+    calcularTotalFolhaA4();
+}
   
       function calcularTotalFolhaA4() {
-          let somaMinutos = 0;
-          document.querySelectorAll('#folha-a4 .td-total').forEach(td => { let mins = td.getAttribute('data-minutos'); if(mins) somaMinutos += parseInt(mins); });
-          let elTotal = document.getElementById('a4-total-geral');
-          if(elTotal) { let h = Math.floor(somaMinutos/60).toString().padStart(2,'0'); let m = (somaMinutos%60).toString().padStart(2,'0'); elTotal.innerText = `${h}:${m}`; }
-      }
+    let somaMinutos = 0;
+    document.querySelectorAll('#folha-a4 .td-total').forEach(td => { 
+        let mins = td.getAttribute('data-minutos'); 
+        if(mins) {
+            let valor = parseInt(mins, 10);
+            if(!isNaN(valor)) {
+                somaMinutos += valor; 
+            }
+        }
+    });
+    
+    let elTotal = document.getElementById('a4-total-geral');
+    if(elTotal) { 
+        let h = Math.floor(somaMinutos/60).toString().padStart(2,'0'); 
+        let m = (somaMinutos%60).toString().padStart(2,'0'); 
+        elTotal.innerText = `${h}:${m}`; 
+    }
+}
   
       function gerarFolhaTradicional() {
         if(!currentUser) return;
