@@ -1,821 +1,871 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  <!DOCTYPE html>
+  <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+    
+    <!-- TAGS PARA O PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png">
   
-  <!-- TAGS PARA O PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#007AFF">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png">
-
-  <title>UBS Laranjeiras - Ponto Inteligente</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --orange: #FF9500; --purple: #AF52DE; --text: #1C1C1E; --subtext: #8E8E93; }
-    * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
-    
-    .flex { display: flex; align-items: center; } .justify-between { justify-content: space-between; } .gap-2 { gap: 8px; }
-    
-    #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .login-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
-    .login-box h2 { margin: 10px 0 20px; font-weight: 800; color: var(--blue); }
-    
-    .header { background: white; padding: 30px 20px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
-    .header h1 { margin: 0; font-size: 22px; font-weight: 800; }
-    .header p { margin: 4px 0 0; color: var(--subtext); font-weight: 500; font-size: 14px; }
-    
-    .container { padding: 15px; }
-    .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-    .card-title { font-size: 13px; font-weight: 700; color: var(--subtext); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
-    
-    label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text); }
-    input, select, textarea { width: 100%; background: #F2F2F7; border: none; border-radius: 12px; padding: 14px; font-size: 15px; margin-bottom: 15px; outline: none; }
-    textarea { resize: vertical; min-height: 80px; }
-    
-    .btn { width: 100%; background: var(--blue); color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; padding: 16px; cursor: pointer; transition: opacity 0.2s; display:flex; justify-content:center; align-items:center; gap:8px; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-green { background: var(--green); } .btn-outline { background: transparent; border: 2px solid var(--subtext); color: var(--subtext); }
-
-    .grid-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .btn-acao { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center; color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; display:flex; flex-direction:column; align-items:center; gap:8px; }
-    .btn-acao svg { width: 28px; height: 28px; stroke: var(--blue); stroke-width: 2; fill: none; }
-    
-    .painel-horas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .painel-box { background: #f2f2f7; padding: 15px; border-radius: 12px; text-align: center; }
-    .painel-box span { font-size: 11px; font-weight: 600; color: var(--subtext); text-transform: uppercase; }
-    .painel-box h4 { margin: 5px 0 0; font-size: 20px; font-weight: 800; }
-
-    /* ESTATÍSTICAS AVANÇADAS */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .stat-box { background: white; border: 1px solid #eee; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-    .stat-box i { font-size: 20px; margin-bottom: 5px; }
-    .stat-box span { font-size: 11px; font-weight: 700; color: var(--subtext); text-transform: uppercase; }
-    .stat-box b { font-size: 18px; color: var(--text); }
-
-    .timeline { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
-    .tl-item { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 15px; border-radius: 10px; border-left: 4px solid var(--blue); }
-    .tl-item span { font-weight: 600; font-size: 14px; }
-    .tl-item b { font-size: 16px; color: var(--blue); }
-
-    /* ESTILOS DOS CARDS DE HISTÓRICO */
-    .hist-card { background: white; border-radius: 14px; border: 1px solid #eee; margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-    .hist-header { background: #f8f9fa; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
-    .hist-date { font-weight: 700; font-size: 14px; color: var(--text); }
-    .hist-total { font-weight: 800; font-size: 15px; }
-    .hist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #eee; }
-    .hist-cell { background: white; padding: 10px; text-align: center; }
-    .hist-cell small { display: block; font-size: 11px; font-weight: 600; color: var(--subtext); margin-bottom: 4px; text-transform: uppercase; }
-    .hist-cell b { font-size: 15px; }
-    .hist-obs { padding: 10px 15px; background: #fffdf5; font-size: 12px; color: #888; border-top: 1px solid #eee; }
-    
-    .mes-card { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; border-left: 5px solid var(--blue); }
-
-    .tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; z-index: 100; }
-    .tab-item { background: none; border: none; color: var(--subtext); display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 600; gap: 4px; }
-    .tab-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; fill: none; }
-    .tab-item.active { color: var(--blue); }
-    .view { display: none; } .view.active { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; }
-    .modal-box { background: white; width: 290px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: scaleUp 0.2s; overflow: hidden; }
-    .modal-box h3 { margin: 20px 0 5px; font-size: 18px; }
-    .modal-box p { margin: 0 15px 20px; font-size: 14px; color: var(--subtext); line-height:1.4; }
-    .modal-btn { width: 100%; border: none; border-top: 1px solid #eee; background: transparent; color: var(--blue); font-size: 16px; font-weight: 700; padding: 15px; cursor: pointer; }
-    .modal-btn-cancel { color: var(--red); font-weight: 500; }
-    @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-    /* FOLHA A4 TRADICIONAL */
-    .page { 
-      background-color: white; width: 210mm; min-height: 297mm;
-      padding: 15mm; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      margin: 0 auto; color: #000; font-family: Arial, sans-serif; position: relative;
-      transform-origin: top left; transition: transform 0.2s;
-    }
-    .page table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
-    .page th, .page td { border: 1px solid #000; padding: 3px 5px; height: 22px; }
-    .page th { font-size: 10px; background: #f0f0f0; }
-    .page-input { border: none; border-bottom: 1px solid #ccc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 14px; outline: none; background: transparent; }
-    .td-edit { font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; outline: none; cursor: text; }
-    .td-edit:hover { background-color: #eaf4ff; }
-    .td-total { background-color: #f9f9f9; font-weight: bold; color: var(--blue); font-family: 'Courier New', monospace; }
-    
-    .zoom-control { display:flex; align-items:center; gap:10px; background:#f0f0f0; padding:10px 15px; border-radius:10px; margin-bottom:15px; }
-    .zoom-control input[type="range"] { margin: 0; flex: 1; }
-    
-    @media print {
-      body * { visibility: hidden; }
-      #folha-a4, #folha-a4 * { visibility: visible; }
-      #folha-a4 { position: absolute; left: 0; top: 0; margin: 0; padding: 0; box-shadow: none; width: 100%; transform: none !important; }
-      .td-edit:hover { background-color: transparent; }
-      @page { margin: 0; size: A4 portrait; }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- LOGIN -->
-  <div id="login-screen">
-    <div class="login-box">
-      <svg width="100" height="90" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <circle cx="19" cy="11" r="5" fill="#fff" stroke="var(--orange)" stroke-width="1.5" />
-        <polyline points="19 8 19 11 21 12" stroke="var(--orange)" stroke-width="1.5">
-           <animateTransform attributeName="transform" type="rotate" from="0 19 11" to="360 19 11" dur="4s" repeatCount="indefinite" />
-        </polyline>
-      </svg>
-      <h2>Ponto Inteligente</h2>
-      <input type="text" id="lUser" placeholder="Usuário (ex: karina)" style="text-transform: lowercase;">
-      <input type="password" id="lPass" placeholder="Senha">
-      <button class="btn" id="btnLogin" onclick="fazerLogin()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg> Entrar no Sistema
-      </button>
-      <p id="loginError" style="color:var(--red); font-size:13px; margin-top:15px; display:none; font-weight:600;"></p>
-    </div>
-  </div>
-
-  <!-- APP CONTENT -->
-  <div id="main-content" style="display:none;">
-    <div class="header flex justify-between">
-      <div>
-        <h1 id="userName">Nome</h1>
-        <p id="userCargo">Cargo</p>
-      </div>
-      <div id="statusGps" style="font-size:12px; font-weight:bold; background:#ffebee; color:#c62828; padding:6px 10px; border-radius:20px; display:flex; align-items:center; gap:4px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> GPS off
-      </div>
-    </div>
-
-    <div class="container">
+    <title>UBS Laranjeiras - Ponto Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root { --bg: #F2F2F7; --card: #FFFFFF; --blue: #007AFF; --green: #34C759; --red: #FF3B30; --orange: #FF9500; --purple: #AF52DE; --text: #1C1C1E; --subtext: #8E8E93; }
+      * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+      body { background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
       
-      <!-- ABA 1: REGISTRO E PAINEL -->
-      <div id="view-dashboard" class="view active">
-        
-        <div class="card">
-          <div class="card-title">Ponto Rápido (Hora Atual)</div>
-          <div class="grid-acoes">
-            <button class="btn-acao" onclick="pontoRapido('Entrada')">
-              <svg><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Entrada
-            </button>
-            <button class="btn-acao" onclick="pontoRapido('Almoço')">
-              <svg stroke="var(--orange)"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> Saída Almoço
-            </button>
-            <button class="btn-acao" onclick="pontoRapido('Retorno')">
-              <svg stroke="var(--green)"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg> Retorno Almoço
-            </button>
-            <button class="btn-acao" onclick="pontoRapido('Saída Final')">
-              <svg stroke="var(--red)"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Saída Final
-            </button>
-          </div>
-          <button class="btn btn-outline" style="padding:10px; font-size:14px; margin-top:5px;" onclick="document.getElementById('boxManual').style.display = document.getElementById('boxManual').style.display === 'block' ? 'none' : 'block'">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Inserir Manual / Folga
-          </button>
-          
-          <button class="btn btn-outline" id="btnLembretes" style="padding:10px; font-size:14px; margin-top:10px; border-color:var(--purple); color:var(--purple);" onclick="ativarNotificacoes()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Ativar Lembretes
-          </button>
-        </div>
-
-        <div class="card" id="boxManual" style="display:none; border: 2px solid var(--blue);">
-          <div class="card-title">Inserção Retroativa</div>
-          <label>Selecione a Data</label>
-          <input type="date" id="fData">
-          <label>O que deseja registrar?</label>
-          <select id="fTipoGeral" onchange="alternarCamposManual(this.value)">
-            <option value="horas">Preencher Horários do Dia</option>
-            <option value="Folga">Folga / Atestado / Feriado</option>
-            <option value="Anotação">Apenas Anotação</option>
-          </select>
-          <div id="blocoHorarios">
-            <div class="grid-acoes" style="margin-bottom:0;">
-              <div><label>Entrada</label><input type="time" id="fEnt"></div>
-              <div><label>Início Almoço</label><input type="time" id="fAlm"></div>
-              <div><label>Retorno</label><input type="time" id="fRet"></div>
-              <div><label>Saída Final</label><input type="time" id="fSai"></div>
-            </div>
-          </div>
-          <label>Justificativa / Anotação (Opcional)</label>
-          <textarea id="fObs" placeholder="Ex: Esqueci de bater, estava em reunião..."></textarea>
-          <button class="btn" id="btnRegistrar" onclick="enviarPontoManualLote()">Salvar Registros</button>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Banco de Horas (Base 8h)</div>
-          <div class="painel-horas">
-            <div class="painel-box">
-              <span>Saldo do Dia</span>
-              <h4 id="saldoHoje">--:--</h4>
-            </div>
-            <div class="painel-box">
-              <span>Saldo do Mês</span>
-              <h4 id="saldoMes">--:--</h4>
-            </div>
-          </div>
-          
-          <div class="card-title" style="margin-top:20px;">Linha do Tempo (Hoje)</div>
-          <div class="timeline">
-            <div class="tl-item"><span>📥 Entrada:</span> <b id="tl-ent">--:--</b></div>
-            <div class="tl-item" style="border-color:var(--orange)"><span>🍽️ Almoço:</span> <b id="tl-alm" style="color:var(--orange)">--:--</b></div>
-            <div class="tl-item" style="border-color:var(--green)"><span>🔙 Retorno:</span> <b id="tl-ret" style="color:var(--green)">--:--</b></div>
-            <div class="tl-item" style="border-color:var(--red)"><span>📤 Saída Final:</span> <b id="tl-sai" style="color:var(--red)">--:--</b></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ABA 2: RELATÓRIOS E HISTÓRICO -->
-      <div id="view-relatorios" class="view">
-        
-        <div class="card">
-          <div class="card-title flex gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Folha Mensal (PDF)</div>
-          <div style="display:flex; gap:10px;">
-            <select id="pdfMes" style="flex:2">
-              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
-              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-            </select>
-            <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
-          </div>
-          <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Documento</button>
-        </div>
-
-        <div class="card">
-          <div class="card-title">📊 Estatísticas Avançadas (Histórico Todo)</div>
-          <div id="statsAvancadas" class="stats-grid">
-            <div class="stat-box"><i>⏱️</i><span>Média Diária</span><b id="stMedia">0h 00m</b></div>
-            <div class="stat-box"><i>📅</i><span>Dias Trabalhados</span><b id="stDiasTrab">0 dias</b></div>
-            <div class="stat-box"><i>📈</i><span>Total Horas Extras</span><b id="stExtra" style="color:var(--green)">0h 00m</b></div>
-            <div class="stat-box"><i>📉</i><span>Total Devendo</span><b id="stDevendo" style="color:var(--red)">0h 00m</b></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Resumo por Mês (Banco de Horas)</div>
-          <div id="listaResumoMeses">
-            <div style="text-align:center; padding:10px; color:var(--subtext); font-size:14px;">Calculando dados...</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Histórico Detalhado (Cards)</div>
-          <div style="background:var(--blue); color:white; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);">
-            <div style="font-size:14px; font-weight:600;">Total Acumulado Geral</div>
-            <div id="totalHorasGeral" style="font-size:24px; font-weight:800;">0h 00m</div>
-          </div>
-          <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
-        </div>
-      </div>
-
-      <!-- ABA 3: CALENDÁRIO -->
-      <div id="view-calendario" class="view">
-        <div class="card">
-          <div class="card-title">Calendário 2026</div>
-          <div id="listaFeriados"></div>
-        </div>
-      </div>
-
-      <!-- ABA 4: ESPELHO TRADICIONAL -->
-      <div id="view-tradicional" class="view">
-        <div class="card">
-          <div class="card-title">Gerar Espelho Físico (Editável)</div>
-          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
-            <label>Mês de Fechamento (Dia 11 a 10)</label>
-            <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
-            <div style="display:flex; gap:10px;">
-              <button class="btn" style="flex:1; background:var(--blue);" onclick="salvarFolhaA4()">💾 Salvar Edições</button>
-              <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
-            </div>
-            <p style="font-size:12px; color:var(--subtext); margin-top:5px; text-align:center;">
-              ⚠️ Ao digitar os horários na folha abaixo, os totais são <b>calculados automaticamente!</b> A assinatura aparece sozinha nos dias trabalhados.
-            </p>
-          </div>
-        </div>
-        <div class="zoom-control">
-          <span style="font-size:12px; font-weight:bold; color:var(--subtext);">🔎 Zoom:</span>
-          <input type="range" min="0.4" max="1.2" step="0.05" value="1" oninput="mudarZoomFolha(this.value)">
-        </div>
-        <div style="width: 100%; overflow-x: auto; background-color: #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-          <div id="folha-a4" class="page"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- NAVEGAÇÃO -->
-    <div class="tab-bar">
-      <button class="tab-item active" onclick="show('dashboard', this)">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Início
-      </button>
-      <button class="tab-item" onclick="show('relatorios', this)">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>Relatórios
-      </button>
-      <button class="tab-item" onclick="show('calendario', this)">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Calendário
-      </button>
-      <button class="tab-item" onclick="show('tradicional', this); gerarFolhaTradicional();">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>Papel
-      </button>
-      <button class="tab-item" onclick="location.reload()">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sair
-      </button>
-    </div>
-  </div>
-
-  <div id="autoPontoModal" class="modal-overlay">
-    <div class="modal-box">
-      <h3 style="color:var(--green); font-size:24px; margin-top:15px;">📍 Você chegou!</h3>
-      <p>O GPS detectou que você está na UBS. Deseja bater seu ponto de <b>ENTRADA</b> agora?</p>
-      <button class="modal-btn" style="color:white; background:var(--green);" onclick="confirmarAutoPonto()">Sim, Bater Entrada</button>
-      <button class="modal-btn modal-btn-cancel" onclick="fecharAutoPonto()">Não, agora não</button>
-    </div>
-  </div>
-
-  <div id="customModal" class="modal-overlay">
-    <div class="modal-box">
-      <div id="modalIcon" style="font-size:40px; margin-top:20px;">✅</div>
-      <h3 id="modalTitle">Sucesso</h3><p id="modalMsg">Mensagem</p>
-      <button class="modal-btn" onclick="document.getElementById('customModal').style.display='none'">OK</button>
-    </div>
-  </div>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.error('Erro SW', err)); });
-    }
-
-    let lembretesAtivos = false; let ultimoAvisoDisparado = "";
-
-    function ativarNotificacoes() {
-      if (!("Notification" in window)) return abrirModal("Erro", "Sem suporte a notificações.", "erro");
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          lembretesAtivos = true; document.getElementById('btnLembretes').innerHTML = "✅ Lembretes Ativos";
-          document.getElementById('btnLembretes').style.background = "#e8f5e9";
-          abrirModal("Sucesso", "Você será avisado sobre seus horários!", "sucesso");
-        }
-      });
-    }
-
-    function dispararNotificacao(titulo, msg) {
-      if (Notification.permission === "granted") {
-        new Notification(titulo, { body: msg, icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png" });
-        navigator.vibrate && navigator.vibrate([200, 100, 200]);
-      }
-    }
-
-    setInterval(() => {
-      if (!lembretesAtivos || !currentUser) return;
-      const agora = new Date(); const horaStr = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
-      const hojeStr = agora.toLocaleDateString('pt-BR');
-      if (horaStr === ultimoAvisoDisparado) return;
-      if (horaStr === "12:00") {
-        const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Almoço');
-        if (!bateu) { dispararNotificacao("🍽️ Hora do Almoço!", "Registre a saída para o almoço."); ultimoAvisoDisparado = horaStr; }
-      }
-      if (horaStr === "16:00") {
-        const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final');
-        if (!bateu) { dispararNotificacao("🏠 Fim do Expediente!", "Registre sua Saída Final."); ultimoAvisoDisparado = horaStr; }
-      }
-    }, 30000);
-
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz2C7CMDee5LlUPCkYzTcEMjuWd-DzztpLIvQyi7h02nfI_2lmRr2gZcMCiDpzDelrP/exec";
-
-    let currentUser = null; let geo = { lat: 0, lon: 0, ok: false }; 
-    let historicoGlobal = []; let autoPontoOferecido = false;
-
-    function abrirModal(titulo, msg, tipo='sucesso') {
-      document.getElementById('modalTitle').innerText = titulo; document.getElementById('modalMsg').innerText = msg;
-      document.getElementById('modalIcon').innerText = tipo === 'erro' ? '⚠️' : '✅'; document.getElementById('customModal').style.display = 'flex';
-    }
-
-    function fazerLogin() {
-      const login = document.getElementById('lUser').value.trim().toLowerCase(); const senha = document.getElementById('lPass').value.trim();
-      const btn = document.getElementById('btnLogin'); const err = document.getElementById('loginError');
-      if(!login || !senha) return;
-      btn.innerHTML = "Conectando..."; btn.disabled = true; err.style.display = 'none';
+      .flex { display: flex; align-items: center; } .justify-between { justify-content: space-between; } .gap-2 { gap: 8px; }
       
-      fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "login", login: login, senha: senha })
-      }).then(r => r.json()).then(res => {
-        if(res.autorizado) {
-          currentUser = res; currentUser.loginID = login;
-          document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-content').style.display = 'block';
-          document.getElementById('userName').innerText = res.user.nome; document.getElementById('userCargo').innerText = res.user.cargo;
-          carregarHistorico(); iniciarGps(); renderizarFeriados(res.feriados); 
-        } else {
-          btn.innerHTML = `Entrar no Sistema`; btn.disabled = false; err.innerText = "Credenciais incorretas!"; err.style.display = 'block';
-        }
-      }).catch(e => { btn.disabled=false; err.innerText="Erro na rede."; err.style.display='block'; });
-    }
-
-    function iniciarGps() {
-      navigator.geolocation.watchPosition(pos => {
-        geo.lat = pos.coords.latitude; geo.lon = pos.coords.longitude;
-        const R = 6371e3; const dLat = (currentUser.ubsGeo.lat - geo.lat) * Math.PI/180; const dLon = (currentUser.ubsGeo.lon - geo.lon) * Math.PI/180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(geo.lat*Math.PI/180)*Math.cos(currentUser.ubsGeo.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-        geo.ok = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) <= 250;
-        const gs = document.getElementById('statusGps');
-        if(geo.ok) {
-            gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> Na UBS`;
-            gs.style.background = "#e8f5e9"; gs.style.color = "#2e7d32";
-        } else {
-            gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> Distante`;
-            gs.style.background = "#ffebee"; gs.style.color = "#c62828";
-        }
-      }, null, {enableHighAccuracy: true});
-    }
-
-    function fecharAutoPonto() { document.getElementById('autoPontoModal').style.display = 'none'; }
-    function confirmarAutoPonto() { fecharAutoPonto(); pontoRapido('Entrada', true); }
-
-    function pontoRapido(tipo, bypassConfirm = false) {
-      const hojeStr = new Date().toLocaleDateString('pt-BR');
-      if(tipo === 'Saída Final' && historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final')) { return abrirModal("Bloqueado", "Você já registrou a Saída Final de hoje.", "erro"); }
-      if(!bypassConfirm && !confirm(`Confirma registrar ${tipo} agora?`)) return;
-
-      const agora = new Date(); const horaStr = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
-      dispararRequisicao({ usuario: currentUser.user.nome, dataManual: hojeStr, horaManual: horaStr, tipo: tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: "" }, (res) => {
-          if(res && res.sucesso === false) abrirModal("Aviso", res.msg, "erro"); else { abrirModal("Sucesso", `Ponto de ${tipo} registrado!`, "sucesso"); carregarHistorico(); }
-      });
-    }
-
-    function alternarCamposManual(valor) { document.getElementById('blocoHorarios').style.display = valor === 'horas' ? 'block' : 'none'; }
-
-    async function enviarPontoManualLote() {
-        const tipoGeral = document.getElementById('fTipoGeral').value; const dataOriginal = document.getElementById('fData').value;
-        if(!dataOriginal) return abrirModal("Erro", "Selecione uma data válida.", "erro");
-        const dataFormatada = dataOriginal.split('-').reverse().join('/');
-        const btn = document.getElementById('btnRegistrar'); btn.innerText = "Salvando Lote..."; btn.disabled = true;
-
-        let registrosParaEnviar = [];
-        if (tipoGeral === 'horas') {
-            const hEnt = document.getElementById('fEnt').value; const hAlm = document.getElementById('fAlm').value;
-            const hRet = document.getElementById('fRet').value; const hSai = document.getElementById('fSai').value;
-            if(!hEnt && !hAlm && !hRet && !hSai) { btn.innerText = "Salvar Registros"; btn.disabled = false; return abrirModal("Erro", "Preencha ao menos um horário.", "erro"); }
-            if(hEnt) registrosParaEnviar.push({ tipo: 'Entrada', hora: hEnt });
-            if(hAlm) registrosParaEnviar.push({ tipo: 'Almoço', hora: hAlm });
-            if(hRet) registrosParaEnviar.push({ tipo: 'Retorno', hora: hRet });
-            if(hSai) registrosParaEnviar.push({ tipo: 'Saída Final', hora: hSai });
-        } else {
-            const n = new Date(); const hr = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
-            registrosParaEnviar.push({ tipo: tipoGeral, hora: hr });
-        }
-
-        let sucessoCount = 0;
-        for (let r of registrosParaEnviar) {
-            let payload = { usuario: currentUser.user.nome, dataManual: dataFormatada, horaManual: r.hora, tipo: r.tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: document.getElementById('fObs').value };
-            try {
-                let res = await fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "registrar", dados: payload }) }).then(resp => resp.json());
-                if(res.sucesso) sucessoCount++;
-            } catch(e) { console.error(e); }
-        }
-
-        btn.innerText = "Salvar Registros"; btn.disabled = false;
-        document.getElementById('fEnt').value = ""; document.getElementById('fAlm').value = ""; document.getElementById('fRet').value = ""; document.getElementById('fSai').value = ""; document.getElementById('fObs').value = ""; document.getElementById('boxManual').style.display = 'none';
-        abrirModal("Concluído", `Foram inseridos ${sucessoCount} registros.`, "sucesso"); carregarHistorico();
-    }
-
-    function dispararRequisicao(dados, callback) {
-      fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "registrar", dados: dados })
-      }).then(r => r.json()).then(res => { if(callback) callback(res); }).catch(err => { if(callback) callback(null); });
-    }
-
-    function carregarHistorico() {
-      fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "historico", nome: currentUser.user.nome })
-      }).then(r => r.json()).then(res => {
-        historicoGlobal = res; calcularPainelHoras(res); renderizarHistoricoCard(res); 
-      });
-    }
-
-    function renderizarHistoricoCard(lista) {
-      const div = document.getElementById('listaHistorico'); const spanGeral = document.getElementById('totalHorasGeral');
-      if(lista.length === 0) { if(spanGeral) spanGeral.innerText = "0h 00m"; return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro encontrado.</div>"; }
-
-      let diasAgrupados = {};
-      lista.forEach(r => {
-        if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { data: r.data, ent: '--:--', alm: '--:--', ret: '--:--', sai: '--:--', folga: false, obs: [] };
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = r.hora; if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = r.hora;
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora; if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
-        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true; if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
-      });
-
-      let totalMinutosGeral = 0; let html = "";
-      let datasSorted = Object.keys(diasAgrupados).sort((a,b) => { let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/'); return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1); });
-
-      datasSorted.forEach(dia => {
-        let d = diasAgrupados[dia]; let totalDiaStr = '--:--'; let corSaldo = 'var(--text)';
-        if (d.folga) { totalDiaStr = 'FOLGA / FERIADO'; corSaldo = 'var(--purple)'; } 
-        else if (d.ent !== '--:--' && d.sai !== '--:--') {
-          let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
-          let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null; let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
-          let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
-          let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
-          let minTrab = tempoBruto - tempoPausa;
-          totalMinutosGeral += minTrab;
-
-          let hStr = Math.floor(minTrab/60).toString().padStart(2,'0'); let mStr = (minTrab%60).toString().padStart(2,'0');
-          totalDiaStr = `${hStr}h ${mStr}m`;
-          let balancoMin = minTrab - 480; if(balancoMin > 0) corSaldo = 'var(--green)'; else if(balancoMin < 0) corSaldo = 'var(--red)';
-        }
-
-        html += `<div class="hist-card"><div class="hist-header"><span class="hist-date">${d.data}</span><span class="hist-total" style="color:${corSaldo}">${totalDiaStr}</span></div>`;
-        if (!d.folga) {
-            html += `<div class="hist-grid">
-              <div class="hist-cell"><small>Entrada</small><b style="color:var(--blue)">${d.ent}</b></div>
-              <div class="hist-cell"><small>Saída Almoço</small><b style="color:var(--orange)">${d.alm}</b></div>
-              <div class="hist-cell"><small>Retorno</small><b style="color:var(--green)">${d.ret}</b></div>
-              <div class="hist-cell"><small>Saída Final</small><b style="color:var(--red)">${d.sai}</b></div>
-            </div>`;
-        }
-        if (d.obs.length > 0) html += `<div class="hist-obs">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</div>`;
-        html += `</div>`;
-      });
-
-      div.innerHTML = html;
-      let htGeral = Math.floor(totalMinutosGeral/60); let mtGeral = totalMinutosGeral % 60;
-      if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
-
-      calcularResumoMensal(diasAgrupados); calcularEstatisticasAvancadas(diasAgrupados);
-    }
-
-    function calcularResumoMensal(diasAgrupados) {
-        let resumoMeses = {};
-        for (let dia in diasAgrupados) {
-            let [dd, mm, yyyy] = dia.split('/'); let mesAno = `${mm}/${yyyy}`;
-            if(!resumoMeses[mesAno]) resumoMeses[mesAno] = { saldoMinutos: 0, temRegistros: false };
-
-            let d = diasAgrupados[dia];
-            if(!d.folga && d.ent !== '--:--' && d.sai !== '--:--') {
-                resumoMeses[mesAno].temRegistros = true;
-                let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
-                let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null; let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
-                let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
-                let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
-                let minTrab = tempoBruto - tempoPausa;
-                resumoMeses[mesAno].saldoMinutos += (minTrab - 480);
-            }
-        }
-
-        let htmlResumo = "";
-        let mesesArr = Object.keys(resumoMeses).sort((a,b) => { let [m1,y1] = a.split('/'); let [m2,y2] = b.split('/'); return new Date(y2,m2-1,1) - new Date(y1,m1-1,1); });
-
-        mesesArr.forEach(m => {
-            if(!resumoMeses[m].temRegistros) return;
-            let sm = resumoMeses[m].saldoMinutos; let cor = sm > 0 ? 'var(--green)' : (sm < 0 ? 'var(--red)' : 'var(--text)'); let sinal = sm > 0 ? "+" : (sm < 0 ? "-" : "");
-            htmlResumo += `<div class="mes-card"><strong style="font-size:15px; color:var(--text);">${obterNomeMes(m.split('/')[0])} ${m.split('/')[1]}</strong><div style="font-size:18px; font-weight:800; color:${cor};">${formataMinutos(Math.abs(sm), sinal)}</div></div>`;
-        });
-        if(htmlResumo === "") htmlResumo = "<div style='text-align:center; padding:10px; color:#888;'>Sem meses concluídos.</div>";
-        document.getElementById('listaResumoMeses').innerHTML = htmlResumo;
-    }
-
-    function calcularEstatisticasAvancadas(diasAgrupados) {
-        let diasTrabalhados = 0; let diasFolga = 0; let minutosTotais = 0; let minutosExtra = 0; let minutosDevendo = 0;
-
-        for(let dia in diasAgrupados) {
-            let d = diasAgrupados[dia];
-            if(d.folga) { diasFolga++; continue; }
-            if(d.ent !== '--:--' && d.sai !== '--:--') {
-                diasTrabalhados++;
-                let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
-                let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null; let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
-                let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
-                let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
-                let minTrab = tempoBruto - tempoPausa;
-                
-                minutosTotais += minTrab;
-                if(minTrab > 480) minutosExtra += (minTrab - 480);
-                if(minTrab < 480) minutosDevendo += (480 - minTrab);
-            }
-        }
-
-        let mediaStr = "0h 00m";
-        if(diasTrabalhados > 0) { let mediaMin = Math.floor(minutosTotais / diasTrabalhados); mediaStr = `${Math.floor(mediaMin/60)}h ${String(mediaMin%60).padStart(2,'0')}m`; }
-
-        document.getElementById('stMedia').innerText = mediaStr; document.getElementById('stDiasTrab').innerText = `${diasTrabalhados} dias`;
-        document.getElementById('stExtra').innerText = formataMinutos(minutosExtra, "+"); document.getElementById('stDevendo').innerText = formataMinutos(minutosDevendo, "-");
-    }
-
-    function obterNomeMes(numStr) { const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return meses[parseInt(numStr)-1] || numStr; }
-    function getMinutos(str) { if(!str || str === '--:--' || str.trim() === '') return null; let p = str.replace(/[^\d:]/g,'').split(':'); if(p.length !== 2) return null; return parseInt(p[0])*60 + parseInt(p[1]); }
-    function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`; }
-
-    function calcularPainelHoras(lista) {
-      const hojeStr = new Date().toLocaleDateString('pt-BR'); const mesAtual = hojeStr.substring(3);
-      document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
-      document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
-
-      const regsHoje = lista.filter(h => h.data === hojeStr); let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
-      regsHoje.forEach(r => {
-        if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
-        if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
-        if(r.tipo === 'Retorno') { mRet = getMinutos(r.hora); document.getElementById('tl-ret').innerText = r.hora; }
-        if(r.tipo === 'Saída Final') { mSai = getMinutos(r.hora); document.getElementById('tl-sai').innerText = r.hora; }
-        if(r.tipo === 'Folga') folgaH = true;
-      });
-
-      let boxH = document.getElementById('saldoHoje');
-      if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
-      else if(mEnt !== null && mSai !== null) {
-        let tempoBrutoHoje = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
-        let tempoPausaHoje = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
-        let minTrabHoje = tempoBrutoHoje - tempoPausaHoje;
-        let saldoMin = minTrabHoje - 480; boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
-        boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
-      } else { boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)"; }
-
-      const regsMes = lista.filter(h => h.data.endsWith(mesAtual)); let diasAgrupados = {};
-      regsMes.forEach(r => {
-        if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora); if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora); if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
-        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
-      });
-
-      let saldoMesMins = 0;
-      for (let dia in diasAgrupados) {
-        let d = diasAgrupados[dia];
-        if(!d.folga && d.ent !== null && d.sai !== null) {
-            let tempoBrutoMes = (d.sai < d.ent) ? (d.sai + 1440 - d.ent) : (d.sai - d.ent);
-            let tempoPausaMes = (d.alm !== null && d.ret !== null) ? (d.ret < d.alm ? d.ret + 1440 - d.alm : d.ret - d.alm) : 0;
-            let minTrab = tempoBrutoMes - tempoPausaMes; saldoMesMins += (minTrab - 480);
-        }
+      #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+      .login-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+      .login-box h2 { margin: 10px 0 20px; font-weight: 800; color: var(--blue); }
+      
+      .header { background: white; padding: 30px 20px 20px; border-bottom: 1px solid rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 50; }
+      .header h1 { margin: 0; font-size: 22px; font-weight: 800; }
+      .header p { margin: 4px 0 0; color: var(--subtext); font-weight: 500; font-size: 14px; }
+      
+      .container { padding: 15px; }
+      .card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+      .card-title { font-size: 13px; font-weight: 700; color: var(--subtext); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+      
+      label { font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text); }
+      input, select, textarea { width: 100%; background: #F2F2F7; border: none; border-radius: 12px; padding: 14px; font-size: 15px; margin-bottom: 15px; outline: none; }
+      textarea { resize: vertical; min-height: 80px; }
+      
+      .btn { width: 100%; background: var(--blue); color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; padding: 16px; cursor: pointer; transition: opacity 0.2s; display:flex; justify-content:center; align-items:center; gap:8px; }
+      .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+      .btn-green { background: var(--green); } .btn-outline { background: transparent; border: 2px solid var(--subtext); color: var(--subtext); }
+  
+      .grid-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+      .btn-acao { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center; color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; display:flex; flex-direction:column; align-items:center; gap:8px; }
+      .btn-acao svg { width: 28px; height: 28px; stroke: var(--blue); stroke-width: 2; fill: none; }
+      
+      .painel-horas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+      .painel-box { background: #f2f2f7; padding: 15px; border-radius: 12px; text-align: center; }
+      .painel-box span { font-size: 11px; font-weight: 600; color: var(--subtext); text-transform: uppercase; }
+      .painel-box h4 { margin: 5px 0 0; font-size: 20px; font-weight: 800; }
+  
+      /* ESTATÍSTICAS AVANÇADAS */
+      .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+      .stat-box { background: white; border: 1px solid #eee; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+      .stat-box i { font-size: 20px; margin-bottom: 5px; }
+      .stat-box span { font-size: 11px; font-weight: 700; color: var(--subtext); text-transform: uppercase; }
+      .stat-box b { font-size: 18px; color: var(--text); }
+  
+      .timeline { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+      .tl-item { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 15px; border-radius: 10px; border-left: 4px solid var(--blue); }
+      .tl-item span { font-weight: 600; font-size: 14px; }
+      .tl-item b { font-size: 16px; color: var(--blue); }
+  
+      /* ESTILOS DOS CARDS DE HISTÓRICO */
+      .hist-card { background: white; border-radius: 14px; border: 1px solid #eee; margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+      .hist-header { background: #f8f9fa; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+      .hist-date { font-weight: 700; font-size: 14px; color: var(--text); }
+      .hist-total { font-weight: 800; font-size: 15px; }
+      .hist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #eee; }
+      .hist-cell { background: white; padding: 10px; text-align: center; }
+      .hist-cell small { display: block; font-size: 11px; font-weight: 600; color: var(--subtext); margin-bottom: 4px; text-transform: uppercase; }
+      .hist-cell b { font-size: 15px; }
+      .hist-obs { padding: 10px 15px; background: #fffdf5; font-size: 12px; color: #888; border-top: 1px solid #eee; }
+      
+      .mes-card { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; border-left: 5px solid var(--blue); }
+  
+      .tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; z-index: 100; }
+      .tab-item { background: none; border: none; color: var(--subtext); display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 600; gap: 4px; }
+      .tab-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; fill: none; }
+      .tab-item.active { color: var(--blue); }
+      .view { display: none; } .view.active { display: block; animation: fadeIn 0.3s; }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+      .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center; }
+      .modal-box { background: white; width: 290px; border-radius: 16px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: scaleUp 0.2s; overflow: hidden; }
+      .modal-box h3 { margin: 20px 0 5px; font-size: 18px; }
+      .modal-box p { margin: 0 15px 20px; font-size: 14px; color: var(--subtext); line-height:1.4; }
+      .modal-btn { width: 100%; border: none; border-top: 1px solid #eee; background: transparent; color: var(--blue); font-size: 16px; font-weight: 700; padding: 15px; cursor: pointer; }
+      .modal-btn-cancel { color: var(--red); font-weight: 500; }
+      @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  
+      /* FOLHA A4 TRADICIONAL */
+      .page { 
+        background-color: white; width: 210mm; min-height: 297mm;
+        padding: 15mm; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        margin: 0 auto; color: #000; font-family: Arial, sans-serif; position: relative;
+        transform-origin: top left; transition: transform 0.2s;
       }
-      let boxM = document.getElementById('saldoMes'); boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
-      boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
-    }
-
-    function renderizarFeriados(feriados) { document.getElementById('listaFeriados').innerHTML = feriados.map(f => `<div style="padding:10px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:13px; font-weight:600;">${f.nome}</div><div style="font-size:11px; color:var(--subtext);">${f.data}</div></div><span style="font-size:10px; font-weight:bold; background:#e0e0e0; padding:4px 8px; border-radius:6px; color:#555;">${f.ref}</span></div>`).join(''); }
-
-    function gerarPDF() {
-      const btn = document.getElementById('btnPdf'); btn.innerText = "Gerando..."; btn.disabled = true;
-      fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "pdf", login: currentUser.loginID, mes: document.getElementById('pdfMes').value, ano: 2026 })
-      }).then(r => r.json()).then(b64 => {
-        btn.innerText = "Baixar Folha Oficial"; btn.disabled = false;
-        if(!b64) return abrirModal("Aviso", "Sem registros no mês.", "erro");
-        const a = document.createElement('a'); a.href = "data:application/pdf;base64," + b64; a.download = `Ponto_UBS_${document.getElementById('pdfMes').value}_2026.pdf`; a.click();
-      });
-    }
-
-    function show(v, btnObj) { document.querySelectorAll('.view').forEach(x => x.classList.remove('active')); document.querySelectorAll('.tab-item').forEach(x => x.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); btnObj.classList.add('active'); }
-    const n = new Date(); document.getElementById('fData').valueAsDate = n; document.getElementById('pdfMes').value = n.getMonth() + 1;
-    function mudarZoomFolha(valor) { document.getElementById('folha-a4').style.transform = `scale(${valor})`; }
-
-    function salvarFolhaA4() {
-        const valMes = document.getElementById('tradMesData').value; if(!valMes) return;
-        let edicoes = {};
-        document.querySelectorAll('.td-edit').forEach(td => {
-            let dia = td.getAttribute('data-dia'); let col = td.getAttribute('data-col');
-            if(dia && col) { if(!edicoes[dia]) edicoes[dia] = {}; edicoes[dia][col] = td.innerText.trim() !== "" ? td.innerText.trim() : td.innerHTML; }
-        });
-        localStorage.setItem('folhaManual_' + currentUser.loginID + '_' + valMes, JSON.stringify(edicoes));
-        abrirModal("Sucesso", "Edições da folha salvas neste dispositivo!", "sucesso");
-    }
-
-    function calcularLinhaA4(celulaEditada) {
-        let tr = celulaEditada.parentElement;
-        let e = getMinutos(tr.querySelector('[data-col="e"]')?.innerText); let ia = getMinutos(tr.querySelector('[data-col="ia"]')?.innerText);
-        let ta = getMinutos(tr.querySelector('[data-col="ta"]')?.innerText); let s = getMinutos(tr.querySelector('[data-col="s"]')?.innerText);
+      .page table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
+      .page th, .page td { border: 1px solid #000; padding: 3px 5px; height: 22px; }
+      .page th { font-size: 10px; background: #f0f0f0; }
+      .page-input { border: none; border-bottom: 1px solid #ccc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 14px; outline: none; background: transparent; }
+      .td-edit { font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; outline: none; cursor: text; }
+      .td-edit:hover { background-color: #eaf4ff; }
+      .td-total { background-color: #f9f9f9; font-weight: bold; color: var(--blue); font-family: 'Courier New', monospace; }
+      
+      .zoom-control { display:flex; align-items:center; gap:10px; background:#f0f0f0; padding:10px 15px; border-radius:10px; margin-bottom:15px; }
+      .zoom-control input[type="range"] { margin: 0; flex: 1; }
+      
+      @media print {
+        body * { visibility: hidden; }
+        #folha-a4, #folha-a4 * { visibility: visible; }
+        #folha-a4 { position: absolute; left: 0; top: 0; margin: 0; padding: 0; box-shadow: none; width: 100%; transform: none !important; }
+        .td-edit:hover { background-color: transparent; }
+        @page { margin: 0; size: A4 portrait; }
+      }
+    </style>
+  </head>
+  <body>
+  
+    <!-- LOGIN -->
+    <div id="login-screen">
+      <div class="login-box">
+        <svg width="100" height="90" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <circle cx="19" cy="11" r="5" fill="#fff" stroke="var(--orange)" stroke-width="1.5" />
+          <polyline points="19 8 19 11 21 12" stroke="var(--orange)" stroke-width="1.5">
+             <animateTransform attributeName="transform" type="rotate" from="0 19 11" to="360 19 11" dur="4s" repeatCount="indefinite" />
+          </polyline>
+        </svg>
+        <h2>Ponto Inteligente</h2>
+        <input type="text" id="lUser" placeholder="Usuário (ex: karina)" style="text-transform: lowercase;">
+        <input type="password" id="lPass" placeholder="Senha">
+        <button class="btn" id="btnLogin" onclick="fazerLogin()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg> Entrar no Sistema
+        </button>
+        <p id="loginError" style="color:var(--red); font-size:13px; margin-top:15px; display:none; font-weight:600;"></p>
+      </div>
+    </div>
+  
+    <!-- APP CONTENT -->
+    <div id="main-content" style="display:none;">
+      <div class="header flex justify-between">
+        <div>
+          <h1 id="userName">Nome</h1>
+          <p id="userCargo">Cargo</p>
+        </div>
+        <div id="statusGps" style="font-size:12px; font-weight:bold; background:#ffebee; color:#c62828; padding:6px 10px; border-radius:20px; display:flex; align-items:center; gap:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> GPS off
+        </div>
+      </div>
+  
+      <div class="container">
         
-        let tdTotal = tr.querySelector('.td-total'); if(!tdTotal) return;
-
-        if(e !== null && s !== null) {
-            let tempoBruto = (s < e) ? (s + 1440 - e) : (s - e);
-            let tempoPausa = (ia !== null && ta !== null) ? (ta < ia ? ta + 1440 - ia : ta - ia) : 0;
-            let minTrab = tempoBruto - tempoPausa;
+        <!-- ABA 1: REGISTRO E PAINEL -->
+        <div id="view-dashboard" class="view active">
+          
+          <div class="card">
+            <div class="card-title">Ponto Rápido (Hora Atual)</div>
+            <div class="grid-acoes">
+              <button class="btn-acao" onclick="pontoRapido('Entrada')">
+                <svg><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Entrada
+              </button>
+              <button class="btn-acao" onclick="pontoRapido('Almoço')">
+                <svg stroke="var(--orange)"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> Saída Almoço
+              </button>
+              <button class="btn-acao" onclick="pontoRapido('Retorno')">
+                <svg stroke="var(--green)"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg> Retorno Almoço
+              </button>
+              <button class="btn-acao" onclick="pontoRapido('Saída Final')">
+                <svg stroke="var(--red)"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Saída Final
+              </button>
+            </div>
+            <button class="btn btn-outline" style="padding:10px; font-size:14px; margin-top:5px;" onclick="document.getElementById('boxManual').style.display = document.getElementById('boxManual').style.display === 'block' ? 'none' : 'block'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Inserir Manual / Folga
+            </button>
             
-            let h = Math.floor(minTrab/60).toString().padStart(2,'0'); let m = (minTrab%60).toString().padStart(2,'0');
-            tdTotal.innerText = `${h}:${m}`; tdTotal.setAttribute('data-minutos', minTrab);
-        } else { tdTotal.innerText = ""; tdTotal.removeAttribute('data-minutos'); }
-        calcularTotalFolhaA4();
-    }
-
-    function calcularTotalFolhaA4() {
-        let somaMinutos = 0;
-        document.querySelectorAll('#folha-a4 .td-total').forEach(td => { let mins = td.getAttribute('data-minutos'); if(mins) somaMinutos += parseInt(mins); });
-        let elTotal = document.getElementById('a4-total-geral');
-        if(elTotal) { let h = Math.floor(somaMinutos/60).toString().padStart(2,'0'); let m = (somaMinutos%60).toString().padStart(2,'0'); elTotal.innerText = `${h}:${m}`; }
-    }
-
-    function gerarFolhaTradicional() {
-      if(!currentUser) return;
-      const valMes = document.getElementById('tradMesData').value; if(!valMes) return;
-      
-      let [ano, mes] = valMes.split('-'); ano = parseInt(ano); mes = parseInt(mes);
-      let prevMes = mes - 1; let prevAno = ano; if(prevMes === 0) { prevMes = 12; prevAno--; }
-
-      const dataInicio = new Date(prevAno, prevMes - 1, 11); const dataFim = new Date(ano, mes - 1, 10);
-      let edicoesSalvas = JSON.parse(localStorage.getItem('folhaManual_' + currentUser.loginID + '_' + valMes)) || {};
-
-      let horarioOficial = "07h - 16h"; let nomeUsuario = currentUser.user.nome.toLowerCase(); let idUsuario = currentUser.loginID.toLowerCase();
-      if (nomeUsuario.includes("karina") || idUsuario.includes("karina") || nomeUsuario.includes("alane") || idUsuario.includes("alane")) { horarioOficial = "08h - 17h"; } 
-      else if (nomeUsuario.includes("mauricio") || idUsuario.includes("mauricio")) { horarioOficial = "07h - 16h"; }
-
-      // PREPARA A TAG DA ASSINATURA
-      let tagAssinatura = "";
-      if(currentUser.user.assinatura) {
-          tagAssinatura = `<img src="${currentUser.user.assinatura}" style="max-height: 16px; vertical-align: middle;">`;
-      }
-
-      let html = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:80px; filter:grayscale(100%);">
-          <div style="text-align:right;">
-            <h2 style="margin:0; font-size:18px; font-weight:900;">Secretaria de Saúde</h2>
-            <p style="margin:2px 0 0; font-size:10px;">Av. Prof. Carvalho Pinto, 207 - 2º andar - Centro - Caieiras - SP<br>CEP: 07700-210 - Tel. 4445-9216</p>
+            <button class="btn btn-outline" id="btnLembretes" style="padding:10px; font-size:14px; margin-top:10px; border-color:var(--purple); color:var(--purple);" onclick="ativarNotificacoes()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Ativar Lembretes
+            </button>
+          </div>
+  
+          <div class="card" id="boxManual" style="display:none; border: 2px solid var(--blue);">
+            <div class="card-title">Inserção Retroativa</div>
+            <label>Selecione a Data</label>
+            <input type="date" id="fData">
+            <label>O que deseja registrar?</label>
+            <select id="fTipoGeral" onchange="alternarCamposManual(this.value)">
+              <option value="horas">Preencher Horários do Dia</option>
+              <option value="Folga">Folga / Atestado / Feriado</option>
+              <option value="Anotação">Apenas Anotação</option>
+            </select>
+            <div id="blocoHorarios">
+              <div class="grid-acoes" style="margin-bottom:0;">
+                <div><label>Entrada</label><input type="time" id="fEnt"></div>
+                <div><label>Início Almoço</label><input type="time" id="fAlm"></div>
+                <div><label>Retorno</label><input type="time" id="fRet"></div>
+                <div><label>Saída Final</label><input type="time" id="fSai"></div>
+              </div>
+            </div>
+            <label>Justificativa / Anotação (Opcional)</label>
+            <textarea id="fObs" placeholder="Ex: Esqueci de bater, estava em reunião..."></textarea>
+            <button class="btn" id="btnRegistrar" onclick="enviarPontoManualLote()">Salvar Registros</button>
+          </div>
+  
+          <div class="card">
+            <div class="card-title">Banco de Horas (Base 8h)</div>
+            <div class="painel-horas">
+              <div class="painel-box">
+                <span>Saldo do Dia</span>
+                <h4 id="saldoHoje">--:--</h4>
+              </div>
+              <div class="painel-box">
+                <span>Saldo do Mês</span>
+                <h4 id="saldoMes">--:--</h4>
+              </div>
+            </div>
+            
+            <div class="card-title" style="margin-top:20px;">Linha do Tempo (Hoje)</div>
+            <div class="timeline">
+              <div class="tl-item"><span>📥 Entrada:</span> <b id="tl-ent">--:--</b></div>
+              <div class="tl-item" style="border-color:var(--orange)"><span>🍽️ Almoço:</span> <b id="tl-alm" style="color:var(--orange)">--:--</b></div>
+              <div class="tl-item" style="border-color:var(--green)"><span>🔙 Retorno:</span> <b id="tl-ret" style="color:var(--green)">--:--</b></div>
+              <div class="tl-item" style="border-color:var(--red)"><span>📤 Saída Final:</span> <b id="tl-sai" style="color:var(--red)">--:--</b></div>
+            </div>
+          </div>
+  
+        </div>
+  
+        <!-- ABA 2: RELATÓRIOS E HISTÓRICO -->
+        <div id="view-relatorios" class="view">
+          
+          <div class="card">
+            <div class="card-title flex gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Folha Mensal (PDF)</div>
+            <div style="display:flex; gap:10px;">
+              <select id="pdfMes" style="flex:2">
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+                <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+                <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+              </select>
+              <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
+            </div>
+            <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Documento</button>
+          </div>
+  
+          <div class="card">
+            <div class="card-title">📊 Estatísticas Avançadas (Histórico Todo)</div>
+            <div id="statsAvancadas" class="stats-grid">
+              <div class="stat-box"><i>⏱️</i><span>Média Diária</span><b id="stMedia">0h 00m</b></div>
+              <div class="stat-box"><i>📅</i><span>Dias Trabalhados</span><b id="stDiasTrab">0 dias</b></div>
+              <div class="stat-box"><i>📈</i><span>Total Horas Extras</span><b id="stExtra" style="color:var(--green)">0h 00m</b></div>
+              <div class="stat-box"><i>📉</i><span>Total Devendo</span><b id="stDevendo" style="color:var(--red)">0h 00m</b></div>
+            </div>
+          </div>
+  
+          <div class="card">
+            <div class="card-title">Resumo por Mês (Banco de Horas)</div>
+            <div id="listaResumoMeses">
+              <div style="text-align:center; padding:10px; color:var(--subtext); font-size:14px;">Calculando dados...</div>
+            </div>
+          </div>
+  
+          <div class="card">
+            <div class="card-title">Histórico Detalhado (Cards)</div>
+            <div style="background:var(--blue); color:white; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);">
+              <div style="font-size:14px; font-weight:600;">Total Acumulado Geral</div>
+              <div id="totalHorasGeral" style="font-size:24px; font-weight:800;">0h 00m</div>
+            </div>
+            <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
           </div>
         </div>
-        <div style="font-size:12px; margin-bottom:15px; line-height:1.8;">
-          <div style="display:flex; justify-content:space-between;">
-            <div><b>Servidor:</b> <span class="page-input" contenteditable="true" style="min-width:250px; display:inline-block;">${currentUser.user.nome.toUpperCase()}</span></div>
-            <div><b>Período:</b> 11/${String(prevMes).padStart(2,'0')}/${prevAno} a 10/${String(mes).padStart(2,'0')}/${ano}</div>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <div><b>Cargo:</b> <span class="page-input" contenteditable="true" style="min-width:200px; display:inline-block;">${currentUser.user.cargo.toUpperCase()}</span></div>
-            <div><b>Prefeitura</b></div>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <div><b>Local de trabalho:</b> <span class="page-input" contenteditable="true" style="min-width:150px; display:inline-block;">UBS Laranjeiras</span></div>
-            <div><b>Horário:</b> <span class="page-input" contenteditable="true" style="min-width:80px; display:inline-block; text-align:center;">${horarioOficial}</span></div>
+  
+        <!-- ABA 3: CALENDÁRIO -->
+        <div id="view-calendario" class="view">
+          <div class="card">
+            <div class="card-title">Calendário 2026</div>
+            <div id="listaFeriados"></div>
           </div>
         </div>
-        <table>
-          <tr style="background:#f0f0f0;">
-            <th>DIA</th><th>ENTRADA</th><th>INÍCIO/<br>ALMOÇO</th><th>TÉRMINO/<br>ALMOÇO</th><th>SAÍDA</th><th>ASSINATURA</th><th>TOTAL</th>
-          </tr>
-      `;
-
-      let curDate = new Date(dataInicio);
-      while(curDate <= dataFim) {
-        let diaNum = ('0' + curDate.getDate()).slice(-2);
-        let mesNum = ('0' + (curDate.getMonth() + 1)).slice(-2);
-        let dataIso = curDate.toLocaleDateString('pt-BR');
-        let diaSemana = curDate.getDay(); 
-
-        let regsDia = historicoGlobal.filter(h => h.data === dataIso);
-        let e='', ia='', ta='', s='', folga=false;
-        
-        regsDia.forEach(r => {
-          if(r.tipo === 'Entrada') e = r.hora; if(r.tipo === 'Almoço') ia = r.hora;
-          if(r.tipo === 'Retorno') ta = r.hora; if(r.tipo === 'Saída Final') s = r.hora;
-          if(r.tipo === 'Folga') folga = true;
-        });
-
-        let finalE = edicoesSalvas[diaNum]?.e !== undefined ? edicoesSalvas[diaNum].e : e;
-        let finalIa = edicoesSalvas[diaNum]?.ia !== undefined ? edicoesSalvas[diaNum].ia : ia;
-        let finalTa = edicoesSalvas[diaNum]?.ta !== undefined ? edicoesSalvas[diaNum].ta : ta;
-        let finalS = edicoesSalvas[diaNum]?.s !== undefined ? edicoesSalvas[diaNum].s : s;
-        
-        // Regra da Assinatura: Se tiver batida de entrada e saída e não estiver editado manualmente, põe a imagem
-        let finalAss = edicoesSalvas[diaNum]?.ass !== undefined ? edicoesSalvas[diaNum].ass : '';
-        if (finalAss === '' && finalE !== '' && finalS !== '') {
-            finalAss = tagAssinatura;
-        }
-
-        if(folga) {
-            html += `<tr style="background:#e0e0e0; font-weight:bold;"><td style="font-size:11px;">${diaNum}/${mesNum}</td><td colspan="6" style="letter-spacing:3px;">F O L G A / F E R I A D O</td></tr>`;
-        } else if(diaSemana === 0 || diaSemana === 6) {
-          let nome = diaSemana === 0 ? "DOMINGO" : "SÁBADO";
-          html += `<tr style="background:#d3d3d3; font-weight:bold;"><td style="font-size:11px;">${diaNum}/${mesNum}</td><td colspan="6" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td></tr>`;
-        } else {
-          html += `
-            <tr>
-              <td style="font-weight:bold; font-size:11px;">${diaNum}/${mesNum}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="e" oninput="calcularLinhaA4(this)">${finalE}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ia" oninput="calcularLinhaA4(this)">${finalIa}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ta" oninput="calcularLinhaA4(this)">${finalTa}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="s" oninput="calcularLinhaA4(this)">${finalS}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ass" style="vertical-align:middle;">${finalAss}</td>
-              <td class="td-total"></td>
-            </tr>`;
-        }
-        curDate.setDate(curDate.getDate() + 1);
-      }
-
-      html += `
-        <tr>
-            <td colspan="6" style="text-align:right; font-weight:bold; padding-right:10px; border-bottom:none;">TOTAL DE HORAS NO MÊS:</td>
-            <td id="a4-total-geral" style="font-weight:bold; font-size:16px; color:var(--blue); background:#eaf4ff;">00:00</td>
-        </tr>
-      </table>`;
-      
-      // CAMPO DE ASSINATURA FINAL (RODAPÉ)
-      html += `
-      <div style="margin-top: 40px; text-align: center;">
-        ${currentUser.user.assinatura ? `<img src="${currentUser.user.assinatura}" style="height: 55px; margin-bottom: -15px;">` : `<br><br><br>`}
-        <div style="border-top: 1px solid #000; width: 300px; margin: 0 auto; padding-top: 5px; font-size: 12px;">
-          <b>${currentUser.user.nome.toUpperCase()}</b><br>
-          Assinatura do Servidor(a)
+  
+        <!-- ABA 4: ESPELHO TRADICIONAL -->
+        <div id="view-tradicional" class="view">
+          <div class="card">
+            <div class="card-title">Gerar Espelho Físico (Editável)</div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+              <label>Mês de Fechamento (Dia 11 a 10)</label>
+              <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
+              <div style="display:flex; gap:10px;">
+                <button class="btn" style="flex:1; background:var(--blue);" onclick="salvarFolhaA4()">💾 Salvar Edições</button>
+                <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
+              </div>
+              <p style="font-size:12px; color:var(--subtext); margin-top:5px; text-align:center;">
+                ⚠️ Ao digitar os horários na folha abaixo, os totais são <b>calculados automaticamente!</b> A assinatura aparece sozinha nos dias trabalhados.
+              </p>
+            </div>
+          </div>
+          <div class="zoom-control">
+            <span style="font-size:12px; font-weight:bold; color:var(--subtext);">🔎 Zoom:</span>
+            <input type="range" min="0.4" max="1.2" step="0.05" value="1" oninput="mudarZoomFolha(this.value)">
+          </div>
+          <div style="width: 100%; overflow-x: auto; background-color: #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <div id="folha-a4" class="page"></div>
+          </div>
         </div>
       </div>
-      `;
-      
-      document.getElementById('folha-a4').innerHTML = html;
-      document.querySelectorAll('#folha-a4 .td-edit[data-col="e"]').forEach(td => calcularLinhaA4(td));
+  
+      <!-- NAVEGAÇÃO -->
+      <div class="tab-bar">
+        <button class="tab-item active" onclick="show('dashboard', this)">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Início
+        </button>
+        <button class="tab-item" onclick="show('relatorios', this)">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>Relatórios
+        </button>
+        <button class="tab-item" onclick="show('calendario', this)">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Calendário
+        </button>
+        <button class="tab-item" onclick="show('tradicional', this); gerarFolhaTradicional();">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>Papel
+        </button>
+        <button class="tab-item" onclick="location.reload()">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sair
+        </button>
+      </div>
+    </div>
+  
+    <div id="autoPontoModal" class="modal-overlay">
+      <div class="modal-box">
+        <h3 style="color:var(--green); font-size:24px; margin-top:15px;">📍 Você chegou!</h3>
+        <p>O GPS detectou que você está na UBS. Deseja bater seu ponto de <b>ENTRADA</b> agora?</p>
+        <button class="modal-btn" style="color:white; background:var(--green);" onclick="confirmarAutoPonto()">Sim, Bater Entrada</button>
+        <button class="modal-btn modal-btn-cancel" onclick="fecharAutoPonto()">Não, agora não</button>
+      </div>
+    </div>
+  
+    <div id="customModal" class="modal-overlay">
+      <div class="modal-box">
+        <div id="modalIcon" style="font-size:40px; margin-top:20px;">✅</div>
+        <h3 id="modalTitle">Sucesso</h3><p id="modalMsg">Mensagem</p>
+        <button class="modal-btn" onclick="document.getElementById('customModal').style.display='none'">OK</button>
+      </div>
+    </div>
+  
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.error('Erro SW', err)); });
+      }
+  
+      let lembretesAtivos = false; let ultimoAvisoDisparado = "";
+  
+      function ativarNotificacoes() {
+        if (!("Notification" in window)) return abrirModal("Erro", "Sem suporte a notificações.", "erro");
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            lembretesAtivos = true; document.getElementById('btnLembretes').innerHTML = "✅ Lembretes Ativos";
+            document.getElementById('btnLembretes').style.background = "#e8f5e9";
+            abrirModal("Sucesso", "Você será avisado sobre seus horários!", "sucesso");
+          }
+        });
+      }
+  
+      function dispararNotificacao(titulo, msg) {
+        if (Notification.permission === "granted") {
+          new Notification(titulo, { body: msg, icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png" });
+          navigator.vibrate && navigator.vibrate([200, 100, 200]);
+        }
+      }
+  
+      setInterval(() => {
+        if (!lembretesAtivos || !currentUser) return;
+        const agora = new Date(); const horaStr = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
+        const hojeStr = agora.toLocaleDateString('pt-BR');
+        if (horaStr === ultimoAvisoDisparado) return;
+        if (horaStr === "12:00") {
+          const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Almoço');
+          if (!bateu) { dispararNotificacao("🍽️ Hora do Almoço!", "Registre a saída para o almoço."); ultimoAvisoDisparado = horaStr; }
+        }
+        if (horaStr === "16:00") {
+          const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final');
+          if (!bateu) { dispararNotificacao("🏠 Fim do Expediente!", "Registre sua Saída Final."); ultimoAvisoDisparado = horaStr; }
+        }
+      }, 30000);
+  
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz2C7CMDee5LlUPCkYzTcEMjuWd-DzztpLIvQyi7h02nfI_2lmRr2gZcMCiDpzDelrP/exec";
+  
+      let currentUser = null; let geo = { lat: 0, lon: 0, ok: false }; 
+      let historicoGlobal = []; let autoPontoOferecido = false;
+  
+      function abrirModal(titulo, msg, tipo='sucesso') {
+        document.getElementById('modalTitle').innerText = titulo; document.getElementById('modalMsg').innerText = msg;
+        document.getElementById('modalIcon').innerText = tipo === 'erro' ? '⚠️' : '✅'; document.getElementById('customModal').style.display = 'flex';
+      }
+  
+      function fazerLogin() {
+        const login = document.getElementById('lUser').value.trim().toLowerCase(); const senha = document.getElementById('lPass').value.trim();
+        const btn = document.getElementById('btnLogin'); const err = document.getElementById('loginError');
+        if(!login || !senha) return;
+        btn.innerHTML = "Conectando..."; btn.disabled = true; err.style.display = 'none';
+        
+        fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "login", login: login, senha: senha })
+        }).then(r => r.json()).then(res => {
+          if(res.autorizado) {
+            currentUser = res; currentUser.loginID = login;
+            document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-content').style.display = 'block';
+            document.getElementById('userName').innerText = res.user.nome; document.getElementById('userCargo').innerText = res.user.cargo;
+            carregarHistorico(); iniciarGps(); renderizarFeriados(res.feriados); 
+          } else {
+            btn.innerHTML = `Entrar no Sistema`; btn.disabled = false; err.innerText = "Credenciais incorretas!"; err.style.display = 'block';
+          }
+        }).catch(e => { btn.disabled=false; err.innerText="Erro na rede."; err.style.display='block'; });
+      }
+  
+      function iniciarGps() {
+        navigator.geolocation.watchPosition(pos => {
+          geo.lat = pos.coords.latitude; geo.lon = pos.coords.longitude;
+          const R = 6371e3; const dLat = (currentUser.ubsGeo.lat - geo.lat) * Math.PI/180; const dLon = (currentUser.ubsGeo.lon - geo.lon) * Math.PI/180;
+          const a = Math.sin(dLat/2)**2 + Math.cos(geo.lat*Math.PI/180)*Math.cos(currentUser.ubsGeo.lat*Math.PI/180)*Math.sin(dLon/2)**2;
+          geo.ok = (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))) <= 250;
+          const gs = document.getElementById('statusGps');
+          if(geo.ok) {
+              gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> Na UBS`;
+              gs.style.background = "#e8f5e9"; gs.style.color = "#2e7d32";
+          } else {
+              gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> Distante`;
+              gs.style.background = "#ffebee"; gs.style.color = "#c62828";
+          }
+        }, null, {enableHighAccuracy: true});
+      }
+  
+      function fecharAutoPonto() { document.getElementById('autoPontoModal').style.display = 'none'; }
+      function confirmarAutoPonto() { fecharAutoPonto(); pontoRapido('Entrada', true); }
+  
+    async function pontoRapido(tipo, bypassConfirm = false) {
+    const hojeStr = new Date().toLocaleDateString('pt-BR');
+    if(tipo === 'Saída Final' && historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final')) { 
+      return abrirModal("Bloqueado", "Você já registrou a Saída Final de hoje.", "erro"); 
     }
-  </script>
-</body>
-</html>
+    
+    if(!bypassConfirm && !confirm(`Confirma registrar ${tipo} agora?`)) return;
+  
+    // --- INÍCIO DA VERIFICAÇÃO BIOMÉTRICA ---
+    // Verifica se o celular tem suporte a biometria/passkey
+    if (window.PublicKeyCredential) {
+      try {
+        // Cria um desafio falso apenas para forçar o celular a abrir a tela de biometria
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+        
+        await navigator.credentials.create({
+          publicKey: {
+            challenge: challenge,
+            rp: { name: "Ponto Inteligente UBS", id: window.location.hostname },
+            user: {
+              id: new Uint8Array(16),
+              name: currentUser.loginID,
+              displayName: currentUser.user.nome
+            },
+            pubKeyCredParams: [{type: "public-key", alg: -7}],
+            authenticatorSelection: { userVerification: "required" },
+            timeout: 60000
+          }
+        });
+        // Se passar daqui, significa que a digital/FaceID foi reconhecida com sucesso!
+      } catch (erro) {
+        console.log(erro);
+        return abrirModal("Erro Biométrica", "Você precisa usar sua digital ou senha do celular para bater o ponto.", "erro");
+      }
+    }
+    // --- FIM DA VERIFICAÇÃO BIOMÉTRICA ---
+  
+    const agora = new Date(); 
+    const horaStr = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
+    
+    dispararRequisicao({ 
+      usuario: currentUser.user.nome, 
+      dataManual: hojeStr, 
+      horaManual: horaStr, 
+      tipo: tipo, 
+      lat: geo.lat, 
+      lon: geo.lon, 
+      noLocal: geo.ok, 
+      obs: "" 
+    }, (res) => {
+        if(res && res.sucesso === false) {
+          abrirModal("Aviso", res.msg, "erro"); 
+        } else { 
+          abrirModal("Sucesso", `Ponto de ${tipo} registrado!`, "sucesso"); 
+          carregarHistorico(); 
+        }
+    });
+  }
+  
+  
+      function alternarCamposManual(valor) { document.getElementById('blocoHorarios').style.display = valor === 'horas' ? 'block' : 'none'; }
+  
+      async function enviarPontoManualLote() {
+          const tipoGeral = document.getElementById('fTipoGeral').value; const dataOriginal = document.getElementById('fData').value;
+          if(!dataOriginal) return abrirModal("Erro", "Selecione uma data válida.", "erro");
+          const dataFormatada = dataOriginal.split('-').reverse().join('/');
+          const btn = document.getElementById('btnRegistrar'); btn.innerText = "Salvando Lote..."; btn.disabled = true;
+  
+          let registrosParaEnviar = [];
+          if (tipoGeral === 'horas') {
+              const hEnt = document.getElementById('fEnt').value; const hAlm = document.getElementById('fAlm').value;
+              const hRet = document.getElementById('fRet').value; const hSai = document.getElementById('fSai').value;
+              if(!hEnt && !hAlm && !hRet && !hSai) { btn.innerText = "Salvar Registros"; btn.disabled = false; return abrirModal("Erro", "Preencha ao menos um horário.", "erro"); }
+              if(hEnt) registrosParaEnviar.push({ tipo: 'Entrada', hora: hEnt });
+              if(hAlm) registrosParaEnviar.push({ tipo: 'Almoço', hora: hAlm });
+              if(hRet) registrosParaEnviar.push({ tipo: 'Retorno', hora: hRet });
+              if(hSai) registrosParaEnviar.push({ tipo: 'Saída Final', hora: hSai });
+          } else {
+              const n = new Date(); const hr = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
+              registrosParaEnviar.push({ tipo: tipoGeral, hora: hr });
+          }
+  
+          let sucessoCount = 0;
+          for (let r of registrosParaEnviar) {
+              let payload = { usuario: currentUser.user.nome, dataManual: dataFormatada, horaManual: r.hora, tipo: r.tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: document.getElementById('fObs').value };
+              try {
+                  let res = await fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "registrar", dados: payload }) }).then(resp => resp.json());
+                  if(res.sucesso) sucessoCount++;
+              } catch(e) { console.error(e); }
+          }
+  
+          btn.innerText = "Salvar Registros"; btn.disabled = false;
+          document.getElementById('fEnt').value = ""; document.getElementById('fAlm').value = ""; document.getElementById('fRet').value = ""; document.getElementById('fSai').value = ""; document.getElementById('fObs').value = ""; document.getElementById('boxManual').style.display = 'none';
+          abrirModal("Concluído", `Foram inseridos ${sucessoCount} registros.`, "sucesso"); carregarHistorico();
+      }
+  
+      function dispararRequisicao(dados, callback) {
+        fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "registrar", dados: dados })
+        }).then(r => r.json()).then(res => { if(callback) callback(res); }).catch(err => { if(callback) callback(null); });
+      }
+  
+      function carregarHistorico() {
+        fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "historico", nome: currentUser.user.nome })
+        }).then(r => r.json()).then(res => {
+          historicoGlobal = res; calcularPainelHoras(res); renderizarHistoricoCard(res); 
+        });
+      }
+  
+      function renderizarHistoricoCard(lista) {
+        const div = document.getElementById('listaHistorico'); const spanGeral = document.getElementById('totalHorasGeral');
+        if(lista.length === 0) { if(spanGeral) spanGeral.innerText = "0h 00m"; return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro encontrado.</div>"; }
+  
+        let diasAgrupados = {};
+        lista.forEach(r => {
+          if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { data: r.data, ent: '--:--', alm: '--:--', ret: '--:--', sai: '--:--', folga: false, obs: [] };
+          if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = r.hora; if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = r.hora;
+          if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora; if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
+          if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true; if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
+        });
+  
+        let totalMinutosGeral = 0; let html = "";
+        let datasSorted = Object.keys(diasAgrupados).sort((a,b) => { let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/'); return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1); });
+  
+        datasSorted.forEach(dia => {
+          let d = diasAgrupados[dia]; let totalDiaStr = '--:--'; let corSaldo = 'var(--text)';
+          if (d.folga) { totalDiaStr = 'FOLGA / FERIADO'; corSaldo = 'var(--purple)'; } 
+          else if (d.ent !== '--:--' && d.sai !== '--:--') {
+            let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
+            let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null; let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
+            let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+            let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+            let minTrab = tempoBruto - tempoPausa;
+            totalMinutosGeral += minTrab;
+  
+            let hStr = Math.floor(minTrab/60).toString().padStart(2,'0'); let mStr = (minTrab%60).toString().padStart(2,'0');
+            totalDiaStr = `${hStr}h ${mStr}m`;
+            let balancoMin = minTrab - 480; if(balancoMin > 0) corSaldo = 'var(--green)'; else if(balancoMin < 0) corSaldo = 'var(--red)';
+          }
+  
+          html += `<div class="hist-card"><div class="hist-header"><span class="hist-date">${d.data}</span><span class="hist-total" style="color:${corSaldo}">${totalDiaStr}</span></div>`;
+          if (!d.folga) {
+              html += `<div class="hist-grid">
+                <div class="hist-cell"><small>Entrada</small><b style="color:var(--blue)">${d.ent}</b></div>
+                <div class="hist-cell"><small>Saída Almoço</small><b style="color:var(--orange)">${d.alm}</b></div>
+                <div class="hist-cell"><small>Retorno</small><b style="color:var(--green)">${d.ret}</b></div>
+                <div class="hist-cell"><small>Saída Final</small><b style="color:var(--red)">${d.sai}</b></div>
+              </div>`;
+          }
+          if (d.obs.length > 0) html += `<div class="hist-obs">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</div>`;
+          html += `</div>`;
+        });
+  
+        div.innerHTML = html;
+        let htGeral = Math.floor(totalMinutosGeral/60); let mtGeral = totalMinutosGeral % 60;
+        if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
+  
+        calcularResumoMensal(diasAgrupados); calcularEstatisticasAvancadas(diasAgrupados);
+      }
+  
+      function calcularResumoMensal(diasAgrupados) {
+          let resumoMeses = {};
+          for (let dia in diasAgrupados) {
+              let [dd, mm, yyyy] = dia.split('/'); let mesAno = `${mm}/${yyyy}`;
+              if(!resumoMeses[mesAno]) resumoMeses[mesAno] = { saldoMinutos: 0, temRegistros: false };
+  
+              let d = diasAgrupados[dia];
+              if(!d.folga && d.ent !== '--:--' && d.sai !== '--:--') {
+                  resumoMeses[mesAno].temRegistros = true;
+                  let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
+                  let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null; let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
+                  let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+                  let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+                  let minTrab = tempoBruto - tempoPausa;
+                  resumoMeses[mesAno].saldoMinutos += (minTrab - 480);
+              }
+          }
+  
+          let htmlResumo = "";
+          let mesesArr = Object.keys(resumoMeses).sort((a,b) => { let [m1,y1] = a.split('/'); let [m2,y2] = b.split('/'); return new Date(y2,m2-1,1) - new Date(y1,m1-1,1); });
+  
+          mesesArr.forEach(m => {
+              if(!resumoMeses[m].temRegistros) return;
+              let sm = resumoMeses[m].saldoMinutos; let cor = sm > 0 ? 'var(--green)' : (sm < 0 ? 'var(--red)' : 'var(--text)'); let sinal = sm > 0 ? "+" : (sm < 0 ? "-" : "");
+              htmlResumo += `<div class="mes-card"><strong style="font-size:15px; color:var(--text);">${obterNomeMes(m.split('/')[0])} ${m.split('/')[1]}</strong><div style="font-size:18px; font-weight:800; color:${cor};">${formataMinutos(Math.abs(sm), sinal)}</div></div>`;
+          });
+          if(htmlResumo === "") htmlResumo = "<div style='text-align:center; padding:10px; color:#888;'>Sem meses concluídos.</div>";
+          document.getElementById('listaResumoMeses').innerHTML = htmlResumo;
+      }
+  
+      function calcularEstatisticasAvancadas(diasAgrupados) {
+          let diasTrabalhados = 0; let diasFolga = 0; let minutosTotais = 0; let minutosExtra = 0; let minutosDevendo = 0;
+  
+          for(let dia in diasAgrupados) {
+              let d = diasAgrupados[dia];
+              if(d.folga) { diasFolga++; continue; }
+              if(d.ent !== '--:--' && d.sai !== '--:--') {
+                  diasTrabalhados++;
+                  let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
+                  let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null; let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
+                  let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+                  let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+                  let minTrab = tempoBruto - tempoPausa;
+                  
+                  minutosTotais += minTrab;
+                  if(minTrab > 480) minutosExtra += (minTrab - 480);
+                  if(minTrab < 480) minutosDevendo += (480 - minTrab);
+              }
+          }
+  
+          let mediaStr = "0h 00m";
+          if(diasTrabalhados > 0) { let mediaMin = Math.floor(minutosTotais / diasTrabalhados); mediaStr = `${Math.floor(mediaMin/60)}h ${String(mediaMin%60).padStart(2,'0')}m`; }
+  
+          document.getElementById('stMedia').innerText = mediaStr; document.getElementById('stDiasTrab').innerText = `${diasTrabalhados} dias`;
+          document.getElementById('stExtra').innerText = formataMinutos(minutosExtra, "+"); document.getElementById('stDevendo').innerText = formataMinutos(minutosDevendo, "-");
+      }
+  
+      function obterNomeMes(numStr) { const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return meses[parseInt(numStr)-1] || numStr; }
+      function getMinutos(str) { if(!str || str === '--:--' || str.trim() === '') return null; let p = str.replace(/[^\d:]/g,'').split(':'); if(p.length !== 2) return null; return parseInt(p[0])*60 + parseInt(p[1]); }
+      function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`; }
+  
+      function calcularPainelHoras(lista) {
+        const hojeStr = new Date().toLocaleDateString('pt-BR'); const mesAtual = hojeStr.substring(3);
+        document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
+        document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
+  
+        const regsHoje = lista.filter(h => h.data === hojeStr); let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
+        regsHoje.forEach(r => {
+          if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
+          if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
+          if(r.tipo === 'Retorno') { mRet = getMinutos(r.hora); document.getElementById('tl-ret').innerText = r.hora; }
+          if(r.tipo === 'Saída Final') { mSai = getMinutos(r.hora); document.getElementById('tl-sai').innerText = r.hora; }
+          if(r.tipo === 'Folga') folgaH = true;
+        });
+  
+        let boxH = document.getElementById('saldoHoje');
+        if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
+        else if(mEnt !== null && mSai !== null) {
+          let tempoBrutoHoje = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+          let tempoPausaHoje = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+          let minTrabHoje = tempoBrutoHoje - tempoPausaHoje;
+          let saldoMin = minTrabHoje - 480; boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
+          boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
+        } else { boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)"; }
+  
+        const regsMes = lista.filter(h => h.data.endsWith(mesAtual)); let diasAgrupados = {};
+        regsMes.forEach(r => {
+          if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
+          if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora); if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
+          if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora); if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
+          if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
+        });
+  
+        let saldoMesMins = 0;
+        for (let dia in diasAgrupados) {
+          let d = diasAgrupados[dia];
+          if(!d.folga && d.ent !== null && d.sai !== null) {
+              let tempoBrutoMes = (d.sai < d.ent) ? (d.sai + 1440 - d.ent) : (d.sai - d.ent);
+              let tempoPausaMes = (d.alm !== null && d.ret !== null) ? (d.ret < d.alm ? d.ret + 1440 - d.alm : d.ret - d.alm) : 0;
+              let minTrab = tempoBrutoMes - tempoPausaMes; saldoMesMins += (minTrab - 480);
+          }
+        }
+        let boxM = document.getElementById('saldoMes'); boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
+        boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
+      }
+  
+      function renderizarFeriados(feriados) { document.getElementById('listaFeriados').innerHTML = feriados.map(f => `<div style="padding:10px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><div style="font-size:13px; font-weight:600;">${f.nome}</div><div style="font-size:11px; color:var(--subtext);">${f.data}</div></div><span style="font-size:10px; font-weight:bold; background:#e0e0e0; padding:4px 8px; border-radius:6px; color:#555;">${f.ref}</span></div>`).join(''); }
+  
+      function gerarPDF() {
+        const btn = document.getElementById('btnPdf'); btn.innerText = "Gerando..."; btn.disabled = true;
+        fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "pdf", login: currentUser.loginID, mes: document.getElementById('pdfMes').value, ano: 2026 })
+        }).then(r => r.json()).then(b64 => {
+          btn.innerText = "Baixar Folha Oficial"; btn.disabled = false;
+          if(!b64) return abrirModal("Aviso", "Sem registros no mês.", "erro");
+          const a = document.createElement('a'); a.href = "data:application/pdf;base64," + b64; a.download = `Ponto_UBS_${document.getElementById('pdfMes').value}_2026.pdf`; a.click();
+        });
+      }
+  
+      function show(v, btnObj) { document.querySelectorAll('.view').forEach(x => x.classList.remove('active')); document.querySelectorAll('.tab-item').forEach(x => x.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); btnObj.classList.add('active'); }
+      const n = new Date(); document.getElementById('fData').valueAsDate = n; document.getElementById('pdfMes').value = n.getMonth() + 1;
+      function mudarZoomFolha(valor) { document.getElementById('folha-a4').style.transform = `scale(${valor})`; }
+  
+      function salvarFolhaA4() {
+          const valMes = document.getElementById('tradMesData').value; if(!valMes) return;
+          let edicoes = {};
+          document.querySelectorAll('.td-edit').forEach(td => {
+              let dia = td.getAttribute('data-dia'); let col = td.getAttribute('data-col');
+              if(dia && col) { if(!edicoes[dia]) edicoes[dia] = {}; edicoes[dia][col] = td.innerText.trim() !== "" ? td.innerText.trim() : td.innerHTML; }
+          });
+          localStorage.setItem('folhaManual_' + currentUser.loginID + '_' + valMes, JSON.stringify(edicoes));
+          abrirModal("Sucesso", "Edições da folha salvas neste dispositivo!", "sucesso");
+      }
+  
+      function calcularLinhaA4(celulaEditada) {
+          let tr = celulaEditada.parentElement;
+          let e = getMinutos(tr.querySelector('[data-col="e"]')?.innerText); let ia = getMinutos(tr.querySelector('[data-col="ia"]')?.innerText);
+          let ta = getMinutos(tr.querySelector('[data-col="ta"]')?.innerText); let s = getMinutos(tr.querySelector('[data-col="s"]')?.innerText);
+          
+          let tdTotal = tr.querySelector('.td-total'); if(!tdTotal) return;
+  
+          if(e !== null && s !== null) {
+              let tempoBruto = (s < e) ? (s + 1440 - e) : (s - e);
+              let tempoPausa = (ia !== null && ta !== null) ? (ta < ia ? ta + 1440 - ia : ta - ia) : 0;
+              let minTrab = tempoBruto - tempoPausa;
+              
+              let h = Math.floor(minTrab/60).toString().padStart(2,'0'); let m = (minTrab%60).toString().padStart(2,'0');
+              tdTotal.innerText = `${h}:${m}`; tdTotal.setAttribute('data-minutos', minTrab);
+          } else { tdTotal.innerText = ""; tdTotal.removeAttribute('data-minutos'); }
+          calcularTotalFolhaA4();
+      }
+  
+      function calcularTotalFolhaA4() {
+          let somaMinutos = 0;
+          document.querySelectorAll('#folha-a4 .td-total').forEach(td => { let mins = td.getAttribute('data-minutos'); if(mins) somaMinutos += parseInt(mins); });
+          let elTotal = document.getElementById('a4-total-geral');
+          if(elTotal) { let h = Math.floor(somaMinutos/60).toString().padStart(2,'0'); let m = (somaMinutos%60).toString().padStart(2,'0'); elTotal.innerText = `${h}:${m}`; }
+      }
+  
+      function gerarFolhaTradicional() {
+        if(!currentUser) return;
+        const valMes = document.getElementById('tradMesData').value; if(!valMes) return;
+        
+        let [ano, mes] = valMes.split('-'); ano = parseInt(ano); mes = parseInt(mes);
+        let prevMes = mes - 1; let prevAno = ano; if(prevMes === 0) { prevMes = 12; prevAno--; }
+  
+        const dataInicio = new Date(prevAno, prevMes - 1, 11); const dataFim = new Date(ano, mes - 1, 10);
+        let edicoesSalvas = JSON.parse(localStorage.getItem('folhaManual_' + currentUser.loginID + '_' + valMes)) || {};
+  
+        let horarioOficial = "07h - 16h"; let nomeUsuario = currentUser.user.nome.toLowerCase(); let idUsuario = currentUser.loginID.toLowerCase();
+        if (nomeUsuario.includes("karina") || idUsuario.includes("karina") || nomeUsuario.includes("alane") || idUsuario.includes("alane")) { horarioOficial = "08h - 17h"; } 
+        else if (nomeUsuario.includes("mauricio") || idUsuario.includes("mauricio")) { horarioOficial = "07h - 16h"; }
+  
+        // PREPARA A TAG DA ASSINATURA
+        let tagAssinatura = "";
+        if(currentUser.user.assinatura) {
+            tagAssinatura = `<img src="${currentUser.user.assinatura}" style="max-height: 16px; vertical-align: middle;">`;
+        }
+  
+        let html = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:80px; filter:grayscale(100%);">
+            <div style="text-align:right;">
+              <h2 style="margin:0; font-size:18px; font-weight:900;">Secretaria de Saúde</h2>
+              <p style="margin:2px 0 0; font-size:10px;">Av. Prof. Carvalho Pinto, 207 - 2º andar - Centro - Caieiras - SP<br>CEP: 07700-210 - Tel. 4445-9216</p>
+            </div>
+          </div>
+          <div style="font-size:12px; margin-bottom:15px; line-height:1.8;">
+            <div style="display:flex; justify-content:space-between;">
+              <div><b>Servidor:</b> <span class="page-input" contenteditable="true" style="min-width:250px; display:inline-block;">${currentUser.user.nome.toUpperCase()}</span></div>
+              <div><b>Período:</b> 11/${String(prevMes).padStart(2,'0')}/${prevAno} a 10/${String(mes).padStart(2,'0')}/${ano}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <div><b>Cargo:</b> <span class="page-input" contenteditable="true" style="min-width:200px; display:inline-block;">${currentUser.user.cargo.toUpperCase()}</span></div>
+              <div><b>Prefeitura</b></div>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+              <div><b>Local de trabalho:</b> <span class="page-input" contenteditable="true" style="min-width:150px; display:inline-block;">UBS Laranjeiras</span></div>
+              <div><b>Horário:</b> <span class="page-input" contenteditable="true" style="min-width:80px; display:inline-block; text-align:center;">${horarioOficial}</span></div>
+            </div>
+          </div>
+          <table>
+            <tr style="background:#f0f0f0;">
+              <th>DIA</th><th>ENTRADA</th><th>INÍCIO/<br>ALMOÇO</th><th>TÉRMINO/<br>ALMOÇO</th><th>SAÍDA</th><th>ASSINATURA</th><th>TOTAL</th>
+            </tr>
+        `;
+  
+        let curDate = new Date(dataInicio);
+        while(curDate <= dataFim) {
+          let diaNum = ('0' + curDate.getDate()).slice(-2);
+          let mesNum = ('0' + (curDate.getMonth() + 1)).slice(-2);
+          let dataIso = curDate.toLocaleDateString('pt-BR');
+          let diaSemana = curDate.getDay(); 
+  
+          let regsDia = historicoGlobal.filter(h => h.data === dataIso);
+          let e='', ia='', ta='', s='', folga=false;
+          
+          regsDia.forEach(r => {
+            if(r.tipo === 'Entrada') e = r.hora; if(r.tipo === 'Almoço') ia = r.hora;
+            if(r.tipo === 'Retorno') ta = r.hora; if(r.tipo === 'Saída Final') s = r.hora;
+            if(r.tipo === 'Folga') folga = true;
+          });
+  
+          let finalE = edicoesSalvas[diaNum]?.e !== undefined ? edicoesSalvas[diaNum].e : e;
+          let finalIa = edicoesSalvas[diaNum]?.ia !== undefined ? edicoesSalvas[diaNum].ia : ia;
+          let finalTa = edicoesSalvas[diaNum]?.ta !== undefined ? edicoesSalvas[diaNum].ta : ta;
+          let finalS = edicoesSalvas[diaNum]?.s !== undefined ? edicoesSalvas[diaNum].s : s;
+          
+          // Regra da Assinatura: Se tiver batida de entrada e saída e não estiver editado manualmente, põe a imagem
+          let finalAss = edicoesSalvas[diaNum]?.ass !== undefined ? edicoesSalvas[diaNum].ass : '';
+          if (finalAss === '' && finalE !== '' && finalS !== '') {
+              finalAss = tagAssinatura;
+          }
+  
+          if(folga) {
+              html += `<tr style="background:#e0e0e0; font-weight:bold;"><td style="font-size:11px;">${diaNum}/${mesNum}</td><td colspan="6" style="letter-spacing:3px;">F O L G A / F E R I A D O</td></tr>`;
+          } else if(diaSemana === 0 || diaSemana === 6) {
+            let nome = diaSemana === 0 ? "DOMINGO" : "SÁBADO";
+            html += `<tr style="background:#d3d3d3; font-weight:bold;"><td style="font-size:11px;">${diaNum}/${mesNum}</td><td colspan="6" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td></tr>`;
+          } else {
+            html += `
+              <tr>
+                <td style="font-weight:bold; font-size:11px;">${diaNum}/${mesNum}</td>
+                <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="e" oninput="calcularLinhaA4(this)">${finalE}</td>
+                <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ia" oninput="calcularLinhaA4(this)">${finalIa}</td>
+                <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ta" oninput="calcularLinhaA4(this)">${finalTa}</td>
+                <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="s" oninput="calcularLinhaA4(this)">${finalS}</td>
+                <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ass" style="vertical-align:middle;">${finalAss}</td>
+                <td class="td-total"></td>
+              </tr>`;
+          }
+          curDate.setDate(curDate.getDate() + 1);
+        }
+  
+        html += `
+          <tr>
+              <td colspan="6" style="text-align:right; font-weight:bold; padding-right:10px; border-bottom:none;">TOTAL DE HORAS NO MÊS:</td>
+              <td id="a4-total-geral" style="font-weight:bold; font-size:16px; color:var(--blue); background:#eaf4ff;">00:00</td>
+          </tr>
+        </table>`;
+        
+        // CAMPO DE ASSINATURA FINAL (RODAPÉ)
+        html += `
+        <div style="margin-top: 40px; text-align: center;">
+          ${currentUser.user.assinatura ? `<img src="${currentUser.user.assinatura}" style="height: 55px; margin-bottom: -15px;">` : `<br><br><br>`}
+          <div style="border-top: 1px solid #000; width: 300px; margin: 0 auto; padding-top: 5px; font-size: 12px;">
+            <b>${currentUser.user.nome.toUpperCase()}</b><br>
+            Assinatura do Servidor(a)
+          </div>
+        </div>
+        `;
+        
+        document.getElementById('folha-a4').innerHTML = html;
+        document.querySelectorAll('#folha-a4 .td-edit[data-col="e"]').forEach(td => calcularLinhaA4(td));
+      }
+    </script>
+  </body>
+  </html>
