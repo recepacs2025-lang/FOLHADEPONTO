@@ -54,6 +54,19 @@
     .tl-item span { font-weight: 600; font-size: 14px; }
     .tl-item b { font-size: 16px; color: var(--blue); }
 
+    /* ESTILOS DOS CARDS DE HISTÓRICO */
+    .hist-card { background: white; border-radius: 14px; border: 1px solid #eee; margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .hist-header { background: #f8f9fa; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+    .hist-date { font-weight: 700; font-size: 14px; color: var(--text); }
+    .hist-total { font-weight: 800; font-size: 15px; }
+    .hist-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #eee; }
+    .hist-cell { background: white; padding: 10px; text-align: center; }
+    .hist-cell small { display: block; font-size: 11px; font-weight: 600; color: var(--subtext); margin-bottom: 4px; text-transform: uppercase; }
+    .hist-cell b { font-size: 15px; }
+    .hist-obs { padding: 10px 15px; background: #fffdf5; font-size: 12px; color: #888; border-top: 1px solid #eee; }
+    
+    .mes-card { background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center; border-left: 5px solid var(--blue); }
+
     .tab-bar { position: fixed; bottom: 0; width: 100%; height: 80px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; z-index: 100; }
     .tab-item { background: none; border: none; color: var(--subtext); display: flex; flex-direction: column; align-items: center; font-size: 11px; font-weight: 600; gap: 4px; }
     .tab-item svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; fill: none; }
@@ -154,30 +167,38 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Inserir Manual / Folga
           </button>
           
-          <!-- BOTÃO NOVO DE NOTIFICAÇÕES -->
+          <!-- BOTÃO NOTIFICAÇÕES -->
           <button class="btn btn-outline" id="btnLembretes" style="padding:10px; font-size:14px; margin-top:10px; border-color:var(--purple); color:var(--purple);" onclick="ativarNotificacoes()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Ativar Lembretes
           </button>
         </div>
 
+        <!-- FORMULÁRIO MANUAL APRIMORADO -->
         <div class="card" id="boxManual" style="display:none; border: 2px solid var(--blue);">
-          <div class="card-title">Inserção Retroativa / Folga</div>
-          <div style="display:flex; gap:10px">
-            <div style="flex:1"><label>Data</label><input type="date" id="fData"></div>
-            <div style="flex:1"><label>Hora</label><input type="time" id="fHora"></div>
-          </div>
-          <label>Ação</label>
-          <select id="fTipo">
-            <option value="Entrada">Entrada</option>
-            <option value="Almoço">Início Almoço</option>
-            <option value="Retorno">Retorno Almoço</option>
-            <option value="Saída Final">Saída Final</option>
-            <option value="Folga">Folga / Atestado</option>
+          <div class="card-title">Inserção Retroativa</div>
+          
+          <label>Selecione a Data</label>
+          <input type="date" id="fData">
+
+          <label>O que deseja registrar?</label>
+          <select id="fTipoGeral" onchange="alternarCamposManual(this.value)">
+            <option value="horas">Preencher Horários do Dia</option>
+            <option value="Folga">Folga / Atestado / Feriado</option>
             <option value="Anotação">Apenas Anotação</option>
           </select>
-          <label>Justificativa</label>
-          <textarea id="fObs" placeholder="Ex: Esqueci de bater..."></textarea>
-          <button class="btn" id="btnRegistrar" onclick="enviarPontoManual()">Salvar Registro</button>
+
+          <div id="blocoHorarios">
+            <div class="grid-acoes" style="margin-bottom:0;">
+              <div><label>Entrada</label><input type="time" id="fEnt"></div>
+              <div><label>Início Almoço</label><input type="time" id="fAlm"></div>
+              <div><label>Retorno</label><input type="time" id="fRet"></div>
+              <div><label>Saída Final</label><input type="time" id="fSai"></div>
+            </div>
+          </div>
+
+          <label>Justificativa / Anotação (Opcional)</label>
+          <textarea id="fObs" placeholder="Ex: Esqueci de bater, estava em reunião..."></textarea>
+          <button class="btn" id="btnRegistrar" onclick="enviarPontoManualLote()">Salvar Registros</button>
         </div>
 
         <div class="card">
@@ -204,10 +225,11 @@
 
       </div>
 
-      <!-- ABA 2: RELATÓRIOS -->
+      <!-- ABA 2: RELATÓRIOS E HISTÓRICO -->
       <div id="view-relatorios" class="view">
+        
         <div class="card">
-          <div class="card-title flex gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Folha Mensal (PDF)</div>
+          <div class="card-title flex gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> Folha Mensal (PDF)</div>
           <div style="display:flex; gap:10px;">
             <select id="pdfMes" style="flex:2">
               <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
@@ -221,9 +243,16 @@
         </div>
 
         <div class="card">
-          <div class="card-title">Histórico e Horas na Casa</div>
+          <div class="card-title">Resumo por Mês (Banco de Horas)</div>
+          <div id="listaResumoMeses">
+            <div style="text-align:center; padding:10px; color:var(--subtext); font-size:14px;">Calculando dados...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Histórico Detalhado (Cards)</div>
           <div style="background:var(--blue); color:white; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);">
-            <div style="font-size:14px; font-weight:600;">Total Acumulado</div>
+            <div style="font-size:14px; font-weight:600;">Total Acumulado Geral</div>
             <div id="totalHorasGeral" style="font-size:24px; font-weight:800;">0h 00m</div>
           </div>
           <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
@@ -331,38 +360,31 @@
     function dispararNotificacao(titulo, msg) {
       if (Notification.permission === "granted") {
         new Notification(titulo, { body: msg, icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png" });
-        navigator.vibrate && navigator.vibrate([200, 100, 200]); // Faz o celular vibrar
+        navigator.vibrate && navigator.vibrate([200, 100, 200]);
       }
     }
 
-    // Checa a cada 30 segundos se é hora de enviar um alerta
     setInterval(() => {
       if (!lembretesAtivos || !currentUser) return;
       const agora = new Date();
       const horaStr = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
       const hojeStr = agora.toLocaleDateString('pt-BR');
 
-      if (horaStr === ultimoAvisoDisparado) return; // Já avisou neste minuto
+      if (horaStr === ultimoAvisoDisparado) return;
 
       if (horaStr === "12:00") {
         const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Almoço');
-        if (!bateu) { 
-          dispararNotificacao("🍽️ Hora do Almoço!", "Não esqueça de registrar a saída para o almoço."); 
-          ultimoAvisoDisparado = horaStr; 
-        }
+        if (!bateu) { dispararNotificacao("🍽️ Hora do Almoço!", "Não esqueça de registrar a saída para o almoço."); ultimoAvisoDisparado = horaStr; }
       }
       if (horaStr === "16:00") {
         const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final');
-        if (!bateu) { 
-          dispararNotificacao("🏠 Fim do Expediente!", "Já são 16h. Registre sua Saída Final antes de ir."); 
-          ultimoAvisoDisparado = horaStr; 
-        }
+        if (!bateu) { dispararNotificacao("🏠 Fim do Expediente!", "Já são 16h. Registre sua Saída Final antes de ir."); ultimoAvisoDisparado = horaStr; }
       }
     }, 30000);
 
 
     // ==========================================
-    // SEU CÓDIGO NORMAL (COLE A URL DO GOOGLE AQUI)
+    // COLE A URL DO SEU GOOGLE APPS SCRIPT AQUI
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz2C7CMDee5LlUPCkYzTcEMjuWd-DzztpLIvQyi7h02nfI_2lmRr2gZcMCiDpzDelrP/exec";
     // ==========================================
 
@@ -419,10 +441,10 @@
         
         const gs = document.getElementById('statusGps');
         if(geo.ok) {
-            gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Na UBS`;
+            gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> Na UBS`;
             gs.style.background = "#e8f5e9"; gs.style.color = "#2e7d32";
         } else {
-            gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Distante`;
+            gs.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"></circle></svg> Distante`;
             gs.style.background = "#ffebee"; gs.style.color = "#c62828";
         }
 
@@ -448,46 +470,107 @@
 
       const agora = new Date();
       const horaStr = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
-      dispararRequisicao({ usuario: currentUser.user.nome, dataManual: hojeStr, horaManual: horaStr, tipo: tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: "" });
+      
+      dispararRequisicao({ usuario: currentUser.user.nome, dataManual: hojeStr, horaManual: horaStr, tipo: tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: "" }, (res) => {
+          if(res && res.sucesso === false) abrirModal("Aviso", res.msg, "erro");
+          else { abrirModal("Sucesso", `Ponto de ${tipo} registrado!`, "sucesso"); carregarHistorico(); }
+      });
     }
 
-    function enviarPontoManual() {
-      const btn = document.getElementById('btnRegistrar'); btn.innerText = "Salvando..."; btn.disabled = true;
-      dispararRequisicao({
-        usuario: currentUser.user.nome, dataManual: document.getElementById('fData').value.split('-').reverse().join('/'),
-        horaManual: document.getElementById('fHora').value, tipo: document.getElementById('fTipo').value,
-        lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: document.getElementById('fObs').value
-      }, () => {
-          btn.innerText = "Salvar Registro"; btn.disabled = false;
-          document.getElementById('fObs').value = ""; document.getElementById('boxManual').style.display = 'none';
-      });
+    // --- NOVA FUNÇÃO: INSERÇÃO MANUAL EM LOTE ---
+    function alternarCamposManual(valor) {
+        document.getElementById('blocoHorarios').style.display = valor === 'horas' ? 'block' : 'none';
+    }
+
+    async function enviarPontoManualLote() {
+        const tipoGeral = document.getElementById('fTipoGeral').value;
+        const dataOriginal = document.getElementById('fData').value;
+        if(!dataOriginal) return abrirModal("Erro", "Selecione uma data válida.", "erro");
+        
+        const dataFormatada = dataOriginal.split('-').reverse().join('/');
+        const obsTxt = document.getElementById('fObs').value;
+        const btn = document.getElementById('btnRegistrar'); 
+        
+        btn.innerText = "Salvando Lote..."; btn.disabled = true;
+
+        let registrosParaEnviar = [];
+
+        if (tipoGeral === 'horas') {
+            const hEnt = document.getElementById('fEnt').value;
+            const hAlm = document.getElementById('fAlm').value;
+            const hRet = document.getElementById('fRet').value;
+            const hSai = document.getElementById('fSai').value;
+            
+            if(!hEnt && !hAlm && !hRet && !hSai) {
+                btn.innerText = "Salvar Registros"; btn.disabled = false;
+                return abrirModal("Erro", "Preencha ao menos um horário.", "erro");
+            }
+
+            if(hEnt) registrosParaEnviar.push({ tipo: 'Entrada', hora: hEnt });
+            if(hAlm) registrosParaEnviar.push({ tipo: 'Almoço', hora: hAlm });
+            if(hRet) registrosParaEnviar.push({ tipo: 'Retorno', hora: hRet });
+            if(hSai) registrosParaEnviar.push({ tipo: 'Saída Final', hora: hSai });
+        } else {
+            // Folga ou Anotação (Usa a hora atual do celular só pra não ir vazio, o sistema de folga entende pelo TIPO)
+            const n = new Date();
+            const hr = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
+            registrosParaEnviar.push({ tipo: tipoGeral, hora: hr });
+        }
+
+        // Envia um por um para não sobrecarregar/trancar o Google Sheets
+        let sucessoCount = 0;
+        for (let r of registrosParaEnviar) {
+            let payload = {
+                usuario: currentUser.user.nome, dataManual: dataFormatada, horaManual: r.hora,
+                tipo: r.tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: obsTxt
+            };
+            try {
+                let res = await fetch(WEB_APP_URL, {
+                    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                    body: JSON.stringify({ acao: "registrar", dados: payload })
+                }).then(resp => resp.json());
+                if(res.sucesso) sucessoCount++;
+            } catch(e) { console.error("Erro ao enviar:", e); }
+        }
+
+        btn.innerText = "Salvar Registros"; btn.disabled = false;
+        
+        // Limpa form
+        document.getElementById('fEnt').value = ""; document.getElementById('fAlm').value = "";
+        document.getElementById('fRet').value = ""; document.getElementById('fSai').value = "";
+        document.getElementById('fObs').value = "";
+        document.getElementById('boxManual').style.display = 'none';
+
+        abrirModal("Concluído", `Foram inseridos ${sucessoCount} registros manuais.`, "sucesso");
+        carregarHistorico();
     }
 
     function dispararRequisicao(dados, callback) {
       fetch(WEB_APP_URL, {
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "registrar", dados: dados })
       }).then(r => r.json()).then(res => {
-        if(callback) callback();
-        if(res.sucesso === false) abrirModal("Aviso", res.msg, "erro");
-        else { abrirModal("Sucesso", res.msg, "sucesso"); carregarHistorico(); }
-      }).catch(err => { if(callback) callback(); abrirModal("Erro", "Falha de rede.", "erro"); });
+        if(callback) callback(res);
+      }).catch(err => { if(callback) callback(null); });
     }
 
     function carregarHistorico() {
       fetch(WEB_APP_URL, {
         method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "historico", nome: currentUser.user.nome })
       }).then(r => r.json()).then(res => {
-        historicoGlobal = res; renderizarHistorico(res); calcularPainelHoras(res);
+        historicoGlobal = res; 
+        calcularPainelHoras(res);
+        renderizarHistoricoCard(res); 
       });
     }
 
-    function renderizarHistorico(lista) {
+    // --- NOVA FUNÇÃO: RENDERIZA HISTÓRICO EM CARDS ---
+    function renderizarHistoricoCard(lista) {
       const div = document.getElementById('listaHistorico');
       const spanGeral = document.getElementById('totalHorasGeral');
       
       if(lista.length === 0) {
         if(spanGeral) spanGeral.innerText = "0h 00m";
-        return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
+        return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro encontrado.</div>";
       }
 
       let diasAgrupados = {};
@@ -504,22 +587,7 @@
       });
 
       let totalMinutosGeral = 0;
-      
-      let html = `
-        <div style="overflow-x:auto;">
-          <table style="width:100%; text-align:center; border-collapse:collapse; font-size:12px;">
-            <thead>
-              <tr style="border-bottom:2px solid #eee; color:var(--subtext);">
-                <th style="padding:8px 2px;">Data</th>
-                <th style="padding:8px 2px;">Ent</th>
-                <th style="padding:8px 2px;">Alm</th>
-                <th style="padding:8px 2px;">Ret</th>
-                <th style="padding:8px 2px;">Saída</th>
-                <th style="padding:8px 2px;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
+      let html = "";
 
       let datasSorted = Object.keys(diasAgrupados).sort((a,b) => {
         let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/');
@@ -529,9 +597,11 @@
       datasSorted.forEach(dia => {
         let d = diasAgrupados[dia];
         let totalDiaStr = '--:--';
+        let corSaldo = 'var(--text)';
 
         if (d.folga) {
-          totalDiaStr = 'FOLGA';
+          totalDiaStr = 'FOLGA / FERIADO';
+          corSaldo = 'var(--purple)';
         } else if (d.ent !== '--:--' && d.sai !== '--:--') {
           let mEnt = getMinutos(d.ent);
           let mSai = getMinutos(d.sai);
@@ -546,37 +616,106 @@
 
           let hStr = Math.floor(minTrab/60).toString().padStart(2,'0');
           let mStr = (minTrab%60).toString().padStart(2,'0');
-          totalDiaStr = `${hStr}h${mStr}`;
+          totalDiaStr = `${hStr}h ${mStr}m`;
+          
+          let balancoMin = minTrab - 480; // 8 horas
+          if(balancoMin > 0) corSaldo = 'var(--green)';
+          else if(balancoMin < 0) corSaldo = 'var(--red)';
         }
 
-        let trStyle = d.folga ? 'background:#f4e6fa;' : 'border-bottom:1px solid #f9f9f9;';
-        
         html += `
-          <tr style="${trStyle}">
-            <td style="padding:12px 2px; font-weight:700; color:var(--text);">${d.data.substring(0,5)}</td>
-            <td style="padding:12px 2px; color:var(--blue); font-weight:600;">${d.ent}</td>
-            <td style="padding:12px 2px; color:var(--orange); font-weight:600;">${d.alm}</td>
-            <td style="padding:12px 2px; color:var(--green); font-weight:600;">${d.ret}</td>
-            <td style="padding:12px 2px; color:var(--red); font-weight:600;">${d.sai}</td>
-            <td style="padding:12px 2px; font-weight:800; background:rgba(0,0,0,0.02);">${totalDiaStr}</td>
-          </tr>
+          <div class="hist-card">
+            <div class="hist-header">
+              <span class="hist-date">${d.data}</span>
+              <span class="hist-total" style="color:${corSaldo}">${totalDiaStr}</span>
+            </div>
         `;
+        
+        if (!d.folga) {
+            html += `
+            <div class="hist-grid">
+              <div class="hist-cell"><small>Entrada</small><b style="color:var(--blue)">${d.ent}</b></div>
+              <div class="hist-cell"><small>Saída Almoço</small><b style="color:var(--orange)">${d.alm}</b></div>
+              <div class="hist-cell"><small>Retorno</small><b style="color:var(--green)">${d.ret}</b></div>
+              <div class="hist-cell"><small>Saída Final</small><b style="color:var(--red)">${d.sai}</b></div>
+            </div>`;
+        }
 
         if (d.obs.length > 0) {
-          html += `<tr><td colspan="6" style="padding:4px 8px 10px; font-size:11px; text-align:left; background:#fffdf5; color:#888; border-bottom:1px solid #eee;">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</td></tr>`;
+          html += `<div class="hist-obs">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</div>`;
         }
+        
+        html += `</div>`;
       });
 
-      html += `</tbody></table></div>`;
       div.innerHTML = html;
 
       let htGeral = Math.floor(totalMinutosGeral/60);
       let mtGeral = totalMinutosGeral % 60;
       if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
+
+      // Após renderizar os cards, calcula o balanço dos meses
+      calcularResumoMensal(diasAgrupados);
     }
 
-    function getMinutos(str) { if(!str) return null; let p = str.split(':'); return parseInt(p[0])*60 + parseInt(p[1]); }
-    function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}m`; }
+    // --- NOVA FUNÇÃO: CÁLCULO MENSAL TOTAL ---
+    function calcularResumoMensal(diasAgrupados) {
+        let resumoMeses = {};
+        
+        for (let dia in diasAgrupados) {
+            let [dd, mm, yyyy] = dia.split('/');
+            let mesAno = `${mm}/${yyyy}`;
+            
+            if(!resumoMeses[mesAno]) {
+                resumoMeses[mesAno] = { saldoMinutos: 0, temRegistros: false };
+            }
+
+            let d = diasAgrupados[dia];
+            if(!d.folga && d.ent !== '--:--' && d.sai !== '--:--') {
+                resumoMeses[mesAno].temRegistros = true;
+                let mEnt = getMinutos(d.ent); let mSai = getMinutos(d.sai);
+                let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null;
+                let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
+
+                let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
+                let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
+                let minTrab = tempoBruto - tempoPausa;
+                
+                // Diminui 8 horas de expectativa
+                resumoMeses[mesAno].saldoMinutos += (minTrab - 480);
+            }
+        }
+
+        let htmlResumo = "";
+        let mesesArr = Object.keys(resumoMeses).sort((a,b) => {
+            let [m1,y1] = a.split('/'); let [m2,y2] = b.split('/');
+            return new Date(y2,m2-1,1) - new Date(y1,m1-1,1);
+        });
+
+        mesesArr.forEach(m => {
+            if(!resumoMeses[m].temRegistros) return;
+            let sm = resumoMeses[m].saldoMinutos;
+            let cor = sm > 0 ? 'var(--green)' : (sm < 0 ? 'var(--red)' : 'var(--text)');
+            let sinal = sm > 0 ? "+" : (sm < 0 ? "-" : "");
+            
+            htmlResumo += `
+            <div class="mes-card">
+              <strong style="font-size:15px; color:var(--text);">${obterNomeMes(m.split('/')[0])} ${m.split('/')[1]}</strong>
+              <div style="font-size:18px; font-weight:800; color:${cor};">${formataMinutos(Math.abs(sm), sinal)}</div>
+            </div>`;
+        });
+
+        if(htmlResumo === "") htmlResumo = "<div style='text-align:center; padding:10px; color:#888;'>Sem meses concluídos.</div>";
+        document.getElementById('listaResumoMeses').innerHTML = htmlResumo;
+    }
+
+    function obterNomeMes(numStr) {
+        const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+        return meses[parseInt(numStr)-1] || numStr;
+    }
+
+    function getMinutos(str) { if(!str || str === '--:--') return null; let p = str.split(':'); return parseInt(p[0])*60 + parseInt(p[1]); }
+    function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`; }
 
     function calcularPainelHoras(lista) {
       const hojeStr = new Date().toLocaleDateString('pt-BR');
@@ -666,7 +805,6 @@
 
     const n = new Date();
     document.getElementById('fData').valueAsDate = n;
-    document.getElementById('fHora').value = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
     document.getElementById('pdfMes').value = n.getMonth() + 1;
 
     function mudarZoomFolha(valor) {
@@ -707,21 +845,16 @@
 
       let edicoesSalvas = JSON.parse(localStorage.getItem('folhaManual_' + currentUser.loginID + '_' + valMes)) || {};
 
-      // ======== NOVA INTELIGÊNCIA DE HORÁRIOS ========
-      let horarioOficial = "07h - 16h"; // Padrão
+      let horarioOficial = "07h - 16h";
       let nomeUsuario = currentUser.user.nome.toLowerCase();
       let idUsuario = currentUser.loginID.toLowerCase();
 
-      // Se for a Karina ou Alane, muda para 08h às 17h
       if (nomeUsuario.includes("karina") || idUsuario.includes("karina") || 
           nomeUsuario.includes("alane") || idUsuario.includes("alane")) {
           horarioOficial = "08h - 17h";
-      } 
-      // Se for o Maurício, garante que é 07h às 16h
-      else if (nomeUsuario.includes("mauricio") || idUsuario.includes("mauricio")) {
+      } else if (nomeUsuario.includes("mauricio") || idUsuario.includes("mauricio")) {
           horarioOficial = "07h - 16h";
       }
-      // ===============================================
 
       let html = `
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
