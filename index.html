@@ -69,6 +69,8 @@
       background-color: white; width: 210mm; min-height: 297mm;
       padding: 15mm; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       margin: 0 auto; color: #000; font-family: Arial, sans-serif; position: relative;
+      transform-origin: top left; /* Necessário para o zoom funcionar bem */
+      transition: transform 0.2s;
     }
     .page table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
     .page th, .page td { border: 1px solid #000; padding: 5px; height: 20px; }
@@ -76,6 +78,9 @@
     .page-input { border: none; border-bottom: 1px solid #ccc; font-weight: bold; font-family: 'Courier New', monospace; font-size: 14px; outline: none; background: transparent; }
     .td-edit { font-family: 'Courier New', monospace; font-size: 14px; font-weight: bold; outline: none; cursor: text; }
     .td-edit:hover { background-color: #eaf4ff; }
+    
+    .zoom-control { display:flex; align-items:center; gap:10px; background:#f0f0f0; padding:10px 15px; border-radius:10px; margin-bottom:15px; }
+    .zoom-control input[type="range"] { margin: 0; flex: 1; }
     
     /* Configuração para Imprimir APENAS a folha A4 */
     @media print {
@@ -92,7 +97,18 @@
   <!-- LOGIN -->
   <div id="login-screen">
     <div class="login-box">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/500px-Bras%C3%A3o_de_Caieiras.svg.png" style="width:70px;">
+      <!-- SVG Animado Trabalhador + Relógio -->
+      <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
+        <!-- Ícone de pessoa/trabalhador -->
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <!-- Relógio animado -->
+        <circle cx="19" cy="11" r="5" fill="#fff" stroke="var(--orange)" stroke-width="1.5" />
+        <polyline points="19 8 19 11 21 12" stroke="var(--orange)" stroke-width="1.5">
+           <animateTransform attributeName="transform" type="rotate" from="0 19 11" to="360 19 11" dur="4s" repeatCount="indefinite" />
+        </polyline>
+      </svg>
+      
       <h2>Ponto Inteligente</h2>
       <input type="text" id="lUser" placeholder="Usuário (ex: karina)" style="text-transform: lowercase;">
       <input type="password" id="lPass" placeholder="Senha">
@@ -189,32 +205,32 @@
       </div>
 
       <!-- ABA 2: RELATÓRIOS -->
-      <div id="view-relatorios" class="view">
-        <div class="card">
-          <div class="card-title flex gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Folha Mensal (PDF)</div>
-          <div style="display:flex; gap:10px;">
-            <select id="pdfMes" style="flex:2">
-              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
-              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-            </select>
-            <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
-          </div>
-          <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Documento</button>
-        </div>
+      <div id="view-relatorios" class="view">
+        <div class="card">
+          <div class="card-title flex gap-2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Folha Mensal (PDF)</div>
+          <div style="display:flex; gap:10px;">
+            <select id="pdfMes" style="flex:2">
+              <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+              <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+              <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+              <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            </select>
+            <select id="pdfAno" style="flex:1"><option value="2026">2026</option></select>
+          </div>
+          <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Documento</button>
+        </div>
 
-        <div class="card">
-          <div class="card-title">Histórico e Horas na Casa</div>
+        <div class="card">
+          <div class="card-title">Histórico e Horas na Casa</div>
           <!-- NOVO: CONTADOR GERAL -->
           <div style="background:var(--blue); color:white; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);">
             <div style="font-size:14px; font-weight:600;">Total Acumulado</div>
             <div id="totalHorasGeral" style="font-size:24px; font-weight:800;">0h 00m</div>
           </div>
           <!-- TABELA DE PONTO -->
-          <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
-        </div>
-      </div>
+          <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
+        </div>
+      </div>
 
       <!-- ABA 3: CALENDÁRIO -->
       <div id="view-calendario" class="view">
@@ -229,21 +245,29 @@
       <div id="view-tradicional" class="view">
         <div class="card">
           <div class="card-title">Gerar Espelho Físico (Editável)</div>
-          <div style="display:flex; gap:10px; margin-bottom:15px; align-items:flex-end;">
-            <div style="flex:1;">
-              <label>Mês de Fechamento (Dia 10)</label>
-              <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
+          
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
+            <label>Mês de Fechamento (Dia 10)</label>
+            <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
+            
+            <div style="display:flex; gap:10px;">
+              <button class="btn" style="flex:1; background:var(--blue);" onclick="salvarFolhaA4()">💾 Salvar Edições</button>
+              <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
             </div>
-            <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
           </div>
-          <p style="font-size:11px; color:var(--subtext); margin-top:-5px;">Dica: Toque em qualquer espaço na tabela abaixo para editar manualmente antes de imprimir.</p>
+          <p style="font-size:11px; color:var(--subtext); margin-top:-5px;">Dica: Toque na tabela para editar e salve para não perder as alterações ao sair da tela.</p>
+        </div>
+
+        <div class="zoom-control">
+          <span style="font-size:12px; font-weight:bold; color:var(--subtext);">🔎 Zoom:</span>
+          <input type="range" min="0.4" max="1.2" step="0.05" value="1" oninput="mudarZoomFolha(this.value)">
         </div>
 
         <!-- CONTAINER COM ROLAGEM HORIZONTAL PARA CELULAR -->
         <div style="width: 100%; overflow-x: auto; background-color: #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
           <!-- AQUI FICA A FOLHA A4 -->
           <div id="folha-a4" class="page">
-             <!-- O Javascript vai desenhar a folha inteira aqui dentro -->
+              <!-- O Javascript vai desenhar a folha inteira aqui dentro -->
           </div>
         </div>
       </div>
@@ -401,168 +425,168 @@
     }
 
     function renderizarHistorico(lista) {
-      const div = document.getElementById('listaHistorico');
-      const spanGeral = document.getElementById('totalHorasGeral');
-      
-      if(lista.length === 0) {
-        if(spanGeral) spanGeral.innerText = "0h 00m";
-        return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
-      }
+      const div = document.getElementById('listaHistorico');
+      const spanGeral = document.getElementById('totalHorasGeral');
+      
+      if(lista.length === 0) {
+        if(spanGeral) spanGeral.innerText = "0h 00m";
+        return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
+      }
 
-      // 1. Agrupar batidas por dia
-      let diasAgrupados = {};
-      lista.forEach(r => {
-        if(!diasAgrupados[r.data]) {
-          diasAgrupados[r.data] = { data: r.data, ent: '--:--', alm: '--:--', ret: '--:--', sai: '--:--', folga: false, obs: [] };
-        }
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = r.hora;
-        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = r.hora;
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora;
-        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
-        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
-        if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
-      });
+      // 1. Agrupar batidas por dia
+      let diasAgrupados = {};
+      lista.forEach(r => {
+        if(!diasAgrupados[r.data]) {
+          diasAgrupados[r.data] = { data: r.data, ent: '--:--', alm: '--:--', ret: '--:--', sai: '--:--', folga: false, obs: [] };
+        }
+        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = r.hora;
+        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = r.hora;
+        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora;
+        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
+        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
+        if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
+      });
 
-      let totalMinutosGeral = 0;
-      
-      // 2. Construir Cabeçalho da Tabela
-      let html = `
-        <div style="overflow-x:auto;">
-          <table style="width:100%; text-align:center; border-collapse:collapse; font-size:12px;">
-            <thead>
-              <tr style="border-bottom:2px solid #eee; color:var(--subtext);">
-                <th style="padding:8px 2px;">Data</th>
-                <th style="padding:8px 2px;">Ent</th>
-                <th style="padding:8px 2px;">Alm</th>
-                <th style="padding:8px 2px;">Ret</th>
-                <th style="padding:8px 2px;">Saída</th>
-                <th style="padding:8px 2px;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
+      let totalMinutosGeral = 0;
+      
+      // 2. Construir Cabeçalho da Tabela
+      let html = `
+        <div style="overflow-x:auto;">
+          <table style="width:100%; text-align:center; border-collapse:collapse; font-size:12px;">
+            <thead>
+              <tr style="border-bottom:2px solid #eee; color:var(--subtext);">
+                <th style="padding:8px 2px;">Data</th>
+                <th style="padding:8px 2px;">Ent</th>
+                <th style="padding:8px 2px;">Alm</th>
+                <th style="padding:8px 2px;">Ret</th>
+                <th style="padding:8px 2px;">Saída</th>
+                <th style="padding:8px 2px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
 
-      let datasSorted = Object.keys(diasAgrupados).sort((a,b) => {
-        let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/');
-        return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1);
-      });
+      let datasSorted = Object.keys(diasAgrupados).sort((a,b) => {
+        let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/');
+        return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1);
+      });
 
-      // 3. Preencher linhas e calcular tempo
-      datasSorted.forEach(dia => {
-        let d = diasAgrupados[dia];
-        let totalDiaStr = '--:--';
+      // 3. Preencher linhas e calcular tempo
+      datasSorted.forEach(dia => {
+        let d = diasAgrupados[dia];
+        let totalDiaStr = '--:--';
 
-        if (d.folga) {
-          totalDiaStr = 'FOLGA';
-        } else if (d.ent !== '--:--' && d.sai !== '--:--') {
-          let mEnt = getMinutos(d.ent);
-          let mSai = getMinutos(d.sai);
-          let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null;
-          let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
+        if (d.folga) {
+          totalDiaStr = 'FOLGA';
+        } else if (d.ent !== '--:--' && d.sai !== '--:--') {
+          let mEnt = getMinutos(d.ent);
+          let mSai = getMinutos(d.sai);
+          let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null;
+          let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
 
           // CÁLCULO BLINDADO (Aceita virada de noite e horário 00:00)
           let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
           let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
           let minTrab = tempoBruto - tempoPausa;
 
-          totalMinutosGeral += minTrab;
+          totalMinutosGeral += minTrab;
 
-          let hStr = Math.floor(minTrab/60).toString().padStart(2,'0');
-          let mStr = (minTrab%60).toString().padStart(2,'0');
-          totalDiaStr = `${hStr}h${mStr}`;
-        }
+          let hStr = Math.floor(minTrab/60).toString().padStart(2,'0');
+          let mStr = (minTrab%60).toString().padStart(2,'0');
+          totalDiaStr = `${hStr}h${mStr}`;
+        }
 
-        let trStyle = d.folga ? 'background:#f4e6fa;' : 'border-bottom:1px solid #f9f9f9;';
-        
-        html += `
-          <tr style="${trStyle}">
-            <td style="padding:12px 2px; font-weight:700; color:var(--text);">${d.data.substring(0,5)}</td>
-            <td style="padding:12px 2px; color:var(--blue); font-weight:600;">${d.ent}</td>
-            <td style="padding:12px 2px; color:var(--orange); font-weight:600;">${d.alm}</td>
-            <td style="padding:12px 2px; color:var(--green); font-weight:600;">${d.ret}</td>
-            <td style="padding:12px 2px; color:var(--red); font-weight:600;">${d.sai}</td>
-            <td style="padding:12px 2px; font-weight:800; background:rgba(0,0,0,0.02);">${totalDiaStr}</td>
-          </tr>
-        `;
+        let trStyle = d.folga ? 'background:#f4e6fa;' : 'border-bottom:1px solid #f9f9f9;';
+        
+        html += `
+          <tr style="${trStyle}">
+            <td style="padding:12px 2px; font-weight:700; color:var(--text);">${d.data.substring(0,5)}</td>
+            <td style="padding:12px 2px; color:var(--blue); font-weight:600;">${d.ent}</td>
+            <td style="padding:12px 2px; color:var(--orange); font-weight:600;">${d.alm}</td>
+            <td style="padding:12px 2px; color:var(--green); font-weight:600;">${d.ret}</td>
+            <td style="padding:12px 2px; color:var(--red); font-weight:600;">${d.sai}</td>
+            <td style="padding:12px 2px; font-weight:800; background:rgba(0,0,0,0.02);">${totalDiaStr}</td>
+          </tr>
+        `;
 
-        if (d.obs.length > 0) {
-          html += `<tr><td colspan="6" style="padding:4px 8px 10px; font-size:11px; text-align:left; background:#fffdf5; color:#888; border-bottom:1px solid #eee;">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</td></tr>`;
-        }
-      });
+        if (d.obs.length > 0) {
+          html += `<tr><td colspan="6" style="padding:4px 8px 10px; font-size:11px; text-align:left; background:#fffdf5; color:#888; border-bottom:1px solid #eee;">📝 <b>Anotações:</b> ${d.obs.join(' | ')}</td></tr>`;
+        }
+      });
 
-      html += `</tbody></table></div>`;
-      div.innerHTML = html;
+      html += `</tbody></table></div>`;
+      div.innerHTML = html;
 
-      let htGeral = Math.floor(totalMinutosGeral/60);
-      let mtGeral = totalMinutosGeral % 60;
-      if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
-    }
+      let htGeral = Math.floor(totalMinutosGeral/60);
+      let mtGeral = totalMinutosGeral % 60;
+      if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
+    }
 
     // Função de parse de minutos
     function getMinutos(str) { if(!str) return null; let p = str.split(':'); return parseInt(p[0])*60 + parseInt(p[1]); }
     function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}m`; }
 
     function calcularPainelHoras(lista) {
-      const hojeStr = new Date().toLocaleDateString('pt-BR');
-      const mesAtual = hojeStr.substring(3);
-      
-      document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
-      document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
+      const hojeStr = new Date().toLocaleDateString('pt-BR');
+      const mesAtual = hojeStr.substring(3);
+      
+      document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
+      document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
 
-      // == CALCULO DO DIA DE HOJE ==
-      const regsHoje = lista.filter(h => h.data === hojeStr);
-      let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
-      regsHoje.forEach(r => {
-        if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
-        if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
-        if(r.tipo === 'Retorno') { mRet = getMinutos(r.hora); document.getElementById('tl-ret').innerText = r.hora; }
-        if(r.tipo === 'Saída Final') { mSai = getMinutos(r.hora); document.getElementById('tl-sai').innerText = r.hora; }
-        if(r.tipo === 'Folga') folgaH = true;
-      });
+      // == CALCULO DO DIA DE HOJE ==
+      const regsHoje = lista.filter(h => h.data === hojeStr);
+      let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
+      regsHoje.forEach(r => {
+        if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
+        if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
+        if(r.tipo === 'Retorno') { mRet = getMinutos(r.hora); document.getElementById('tl-ret').innerText = r.hora; }
+        if(r.tipo === 'Saída Final') { mSai = getMinutos(r.hora); document.getElementById('tl-sai').innerText = r.hora; }
+        if(r.tipo === 'Folga') folgaH = true;
+      });
 
-      let boxH = document.getElementById('saldoHoje');
-      if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
-      else if(mEnt !== null && mSai !== null) {
+      let boxH = document.getElementById('saldoHoje');
+      if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
+      else if(mEnt !== null && mSai !== null) {
         // CÁLCULO BLINDADO HOJE
         let tempoBrutoHoje = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
         let tempoPausaHoje = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
         let minTrabHoje = tempoBrutoHoje - tempoPausaHoje;
 
-        let saldoMin = minTrabHoje - 480; // Base 8h
-        boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
-        boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
-      } else {
-        boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)";
-      }
+        let saldoMin = minTrabHoje - 480; // Base 8h
+        boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
+        boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
+      } else {
+        boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)";
+      }
 
-      // == CALCULO DO MÊS INTEIRO ==
-      const regsMes = lista.filter(h => h.data.endsWith(mesAtual));
-      let diasAgrupados = {};
-      regsMes.forEach(r => {
-        if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora);
-        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora);
-        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
-        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
-      });
+      // == CALCULO DO MÊS INTEIRO ==
+      const regsMes = lista.filter(h => h.data.endsWith(mesAtual));
+      let diasAgrupados = {};
+      regsMes.forEach(r => {
+        if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
+        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora);
+        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
+        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora);
+        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
+        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
+      });
 
-      let saldoMesMins = 0;
-      for (let dia in diasAgrupados) {
-        let d = diasAgrupados[dia];
-        if(!d.folga && d.ent !== null && d.sai !== null) {
+      let saldoMesMins = 0;
+      for (let dia in diasAgrupados) {
+        let d = diasAgrupados[dia];
+        if(!d.folga && d.ent !== null && d.sai !== null) {
             // CÁLCULO BLINDADO MÊS
             let tempoBrutoMes = (d.sai < d.ent) ? (d.sai + 1440 - d.ent) : (d.sai - d.ent);
             let tempoPausaMes = (d.alm !== null && d.ret !== null) ? (d.ret < d.alm ? d.ret + 1440 - d.alm : d.ret - d.alm) : 0;
             let minTrab = tempoBrutoMes - tempoPausaMes;
-            saldoMesMins += (minTrab - 480);
-        }
-      }
+            saldoMesMins += (minTrab - 480);
+        }
+      }
 
-      let boxM = document.getElementById('saldoMes');
-      boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
-      boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
-    }
+      let boxM = document.getElementById('saldoMes');
+      boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
+      boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
+    }
 
     function renderizarFeriados(feriados) {
       document.getElementById('listaFeriados').innerHTML = feriados.map(f => `
@@ -597,6 +621,29 @@
     document.getElementById('fHora').value = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
     document.getElementById('pdfMes').value = n.getMonth() + 1;
 
+    // --- FUNÇÕES DA FOLHA TRADICIONAL (ZOOM E SALVAMENTO) ---
+    function mudarZoomFolha(valor) {
+        document.getElementById('folha-a4').style.transform = `scale(${valor})`;
+    }
+
+    function salvarFolhaA4() {
+        const valMes = document.getElementById('tradMesData').value;
+        if(!valMes) return;
+        
+        let edicoes = {};
+        document.querySelectorAll('.td-edit').forEach(td => {
+            let dia = td.getAttribute('data-dia');
+            let col = td.getAttribute('data-col');
+            if(dia && col) {
+                if(!edicoes[dia]) edicoes[dia] = {};
+                edicoes[dia][col] = td.innerText.trim();
+            }
+        });
+        
+        localStorage.setItem('folhaManual_' + currentUser.loginID + '_' + valMes, JSON.stringify(edicoes));
+        abrirModal("Sucesso", "Edições da folha salvas neste dispositivo!", "sucesso");
+    }
+
     function gerarFolhaTradicional() {
       if(!currentUser) return;
       const valMes = document.getElementById('tradMesData').value; // Ex: "2026-04"
@@ -610,6 +657,9 @@
 
       const dataInicio = new Date(prevAno, prevMes - 1, 11);
       const dataFim = new Date(ano, mes - 1, 10);
+
+      // Carregar edições salvas localmente
+      let edicoesSalvas = JSON.parse(localStorage.getItem('folhaManual_' + currentUser.loginID + '_' + valMes)) || {};
 
       let html = `
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
@@ -644,7 +694,7 @@
       // Gerar as linhas do dia 11 ao 10
       let curDate = new Date(dataInicio);
       while(curDate <= dataFim) {
-        let diaStr = curDate.getDate();
+        let diaStr = curDate.getDate().toString();
         let diaSemana = curDate.getDay();
         let dataIso = curDate.toLocaleDateString('pt-BR'); // Ex: "11/03/2026"
 
@@ -659,6 +709,13 @@
           if(r.tipo === 'Saída Final') s = r.hora;
         });
 
+        // Verificar prioridade: Edição Local Salva > Histórico API > '--'
+        let finalE = edicoesSalvas[diaStr]?.e !== undefined ? edicoesSalvas[diaStr].e : (e !== '--' ? e : '');
+        let finalIa = edicoesSalvas[diaStr]?.ia !== undefined ? edicoesSalvas[diaStr].ia : (ia !== '--' ? ia : '');
+        let finalTa = edicoesSalvas[diaStr]?.ta !== undefined ? edicoesSalvas[diaStr].ta : (ta !== '--' ? ta : '');
+        let finalS = edicoesSalvas[diaStr]?.s !== undefined ? edicoesSalvas[diaStr].s : (s !== '--' ? s : '');
+        let finalAss = edicoesSalvas[diaStr]?.ass !== undefined ? edicoesSalvas[diaStr].ass : '';
+
         // Fins de semana
         if(diaSemana === 0 || diaSemana === 6) {
           let nome = diaSemana === 0 ? "DOMINGO" : "SÁBADO";
@@ -668,15 +725,15 @@
               <td colspan="5" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td>
             </tr>`;
         } else {
-          // Dia útil editável com auto-preenchimento
+          // Dia útil editável com auto-preenchimento e IDs baseados no dia e coluna
           html += `
             <tr>
               <td style="font-weight:bold;">${diaStr}</td>
-              <td class="td-edit" contenteditable="true">${e !== '--' ? e : ''}</td>
-              <td class="td-edit" contenteditable="true">${ia !== '--' ? ia : ''}</td>
-              <td class="td-edit" contenteditable="true">${ta !== '--' ? ta : ''}</td>
-              <td class="td-edit" contenteditable="true">${s !== '--' ? s : ''}</td>
-              <td class="td-edit" contenteditable="true"></td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="e">${finalE}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ia">${finalIa}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ta">${finalTa}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="s">${finalS}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ass">${finalAss}</td>
             </tr>`;
         }
         curDate.setDate(curDate.getDate() + 1); // avança 1 dia
