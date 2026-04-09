@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
+  
+  <!-- TAGS PARA O PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007AFF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png">
+
   <title>UBS Laranjeiras - Ponto Inteligente</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -36,7 +44,6 @@
     .btn-acao { background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; padding: 15px 10px; text-align: center; color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; display:flex; flex-direction:column; align-items:center; gap:8px; }
     .btn-acao svg { width: 28px; height: 28px; stroke: var(--blue); stroke-width: 2; fill: none; }
     
-    /* Painel Duplo (Dia / Mês) */
     .painel-horas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
     .painel-box { background: #f2f2f7; padding: 15px; border-radius: 12px; text-align: center; }
     .painel-box span { font-size: 11px; font-weight: 600; color: var(--subtext); text-transform: uppercase; }
@@ -62,15 +69,11 @@
     .modal-btn-cancel { color: var(--red); font-weight: 500; }
     @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* ==========================================
-       ESTILOS DA FOLHA A4 (MODELO TRADICIONAL)
-       ========================================== */
     .page { 
       background-color: white; width: 210mm; min-height: 297mm;
       padding: 15mm; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
       margin: 0 auto; color: #000; font-family: Arial, sans-serif; position: relative;
-      transform-origin: top left; /* Necessário para o zoom funcionar bem */
-      transition: transform 0.2s;
+      transform-origin: top left; transition: transform 0.2s;
     }
     .page table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
     .page th, .page td { border: 1px solid #000; padding: 5px; height: 20px; }
@@ -82,7 +85,6 @@
     .zoom-control { display:flex; align-items:center; gap:10px; background:#f0f0f0; padding:10px 15px; border-radius:10px; margin-bottom:15px; }
     .zoom-control input[type="range"] { margin: 0; flex: 1; }
     
-    /* Configuração para Imprimir APENAS a folha A4 */
     @media print {
       body * { visibility: hidden; }
       #folha-a4, #folha-a4 * { visibility: visible; }
@@ -97,18 +99,14 @@
   <!-- LOGIN -->
   <div id="login-screen">
     <div class="login-box">
-      <!-- SVG Animado Trabalhador + Relógio -->
-      <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
-        <!-- Ícone de pessoa/trabalhador -->
+      <svg width="100" height="90" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 10px; display: block;">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
-        <!-- Relógio animado -->
         <circle cx="19" cy="11" r="5" fill="#fff" stroke="var(--orange)" stroke-width="1.5" />
         <polyline points="19 8 19 11 21 12" stroke="var(--orange)" stroke-width="1.5">
            <animateTransform attributeName="transform" type="rotate" from="0 19 11" to="360 19 11" dur="4s" repeatCount="indefinite" />
         </polyline>
       </svg>
-      
       <h2>Ponto Inteligente</h2>
       <input type="text" id="lUser" placeholder="Usuário (ex: karina)" style="text-transform: lowercase;">
       <input type="password" id="lPass" placeholder="Senha">
@@ -136,7 +134,6 @@
       <!-- ABA 1: REGISTRO E PAINEL -->
       <div id="view-dashboard" class="view active">
         
-        <!-- BOTOES RAPIDOS -->
         <div class="card">
           <div class="card-title">Ponto Rápido (Hora Atual)</div>
           <div class="grid-acoes">
@@ -156,9 +153,13 @@
           <button class="btn btn-outline" style="padding:10px; font-size:14px; margin-top:5px;" onclick="document.getElementById('boxManual').style.display = document.getElementById('boxManual').style.display === 'block' ? 'none' : 'block'">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Inserir Manual / Folga
           </button>
+          
+          <!-- BOTÃO NOVO DE NOTIFICAÇÕES -->
+          <button class="btn btn-outline" id="btnLembretes" style="padding:10px; font-size:14px; margin-top:10px; border-color:var(--purple); color:var(--purple);" onclick="ativarNotificacoes()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Ativar Lembretes
+          </button>
         </div>
 
-        <!-- FORMULARIO ESCONDIDO -->
         <div class="card" id="boxManual" style="display:none; border: 2px solid var(--blue);">
           <div class="card-title">Inserção Retroativa / Folga</div>
           <div style="display:flex; gap:10px">
@@ -179,7 +180,6 @@
           <button class="btn" id="btnRegistrar" onclick="enviarPontoManual()">Salvar Registro</button>
         </div>
 
-        <!-- BANCO DE HORAS -->
         <div class="card">
           <div class="card-title">Banco de Horas (Base 8h)</div>
           <div class="painel-horas">
@@ -222,12 +222,10 @@
 
         <div class="card">
           <div class="card-title">Histórico e Horas na Casa</div>
-          <!-- NOVO: CONTADOR GERAL -->
           <div style="background:var(--blue); color:white; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);">
             <div style="font-size:14px; font-weight:600;">Total Acumulado</div>
             <div id="totalHorasGeral" style="font-size:24px; font-weight:800;">0h 00m</div>
           </div>
-          <!-- TABELA DE PONTO -->
           <div id="listaHistorico" style="font-size:14px;"><div style="text-align:center; padding:20px; color:var(--subtext);">Carregando inteligência...</div></div>
         </div>
       </div>
@@ -239,38 +237,29 @@
           <div id="listaFeriados"></div>
         </div>
       </div>
-    </div>
 
-    <!-- ABA 4: ESPELHO TRADICIONAL (PAPEL A4) -->
+      <!-- ABA 4: ESPELHO TRADICIONAL -->
       <div id="view-tradicional" class="view">
         <div class="card">
           <div class="card-title">Gerar Espelho Físico (Editável)</div>
-          
           <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
             <label>Mês de Fechamento (Dia 10)</label>
             <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
-            
             <div style="display:flex; gap:10px;">
               <button class="btn" style="flex:1; background:var(--blue);" onclick="salvarFolhaA4()">💾 Salvar Edições</button>
               <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
             </div>
           </div>
-          <p style="font-size:11px; color:var(--subtext); margin-top:-5px;">Dica: Toque na tabela para editar e salve para não perder as alterações ao sair da tela.</p>
         </div>
-
         <div class="zoom-control">
           <span style="font-size:12px; font-weight:bold; color:var(--subtext);">🔎 Zoom:</span>
           <input type="range" min="0.4" max="1.2" step="0.05" value="1" oninput="mudarZoomFolha(this.value)">
         </div>
-
-        <!-- CONTAINER COM ROLAGEM HORIZONTAL PARA CELULAR -->
         <div style="width: 100%; overflow-x: auto; background-color: #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-          <!-- AQUI FICA A FOLHA A4 -->
-          <div id="folha-a4" class="page">
-              <!-- O Javascript vai desenhar a folha inteira aqui dentro -->
-          </div>
+          <div id="folha-a4" class="page"></div>
         </div>
       </div>
+    </div>
 
     <!-- NAVEGAÇÃO -->
     <div class="tab-bar">
@@ -283,11 +272,9 @@
       <button class="tab-item" onclick="show('calendario', this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Calendário
       </button>
-
       <button class="tab-item" onclick="show('tradicional', this); gerarFolhaTradicional();">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>Papel
       </button>
-      
       <button class="tab-item" onclick="location.reload()">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Sair
       </button>
@@ -312,8 +299,70 @@
   </div>
 
   <script>
+    // --- REGISTRO DO SERVICE WORKER (PWA) ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('PWA Service Worker Ativado!', reg))
+          .catch(err => console.error('Erro ao registrar Service Worker', err));
+      });
+    }
+
+    // --- SISTEMA DE NOTIFICAÇÕES E LEMBRETES ---
+    let lembretesAtivos = false;
+    let ultimoAvisoDisparado = "";
+
+    function ativarNotificacoes() {
+      if (!("Notification" in window)) {
+        return abrirModal("Erro", "Seu navegador não suporta notificações.", "erro");
+      }
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          lembretesAtivos = true;
+          document.getElementById('btnLembretes').innerHTML = "✅ Lembretes Ativos";
+          document.getElementById('btnLembretes').style.background = "#e8f5e9";
+          abrirModal("Sucesso", "Você será avisado sobre seus horários!", "sucesso");
+        } else {
+          abrirModal("Aviso", "Permissão negada. Você precisa autorizar nas configurações do navegador.", "erro");
+        }
+      });
+    }
+
+    function dispararNotificacao(titulo, msg) {
+      if (Notification.permission === "granted") {
+        new Notification(titulo, { body: msg, icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bras%C3%A3o_de_Caieiras.svg/192px-Bras%C3%A3o_de_Caieiras.svg.png" });
+        navigator.vibrate && navigator.vibrate([200, 100, 200]); // Faz o celular vibrar
+      }
+    }
+
+    // Checa a cada 30 segundos se é hora de enviar um alerta
+    setInterval(() => {
+      if (!lembretesAtivos || !currentUser) return;
+      const agora = new Date();
+      const horaStr = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
+      const hojeStr = agora.toLocaleDateString('pt-BR');
+
+      if (horaStr === ultimoAvisoDisparado) return; // Já avisou neste minuto
+
+      if (horaStr === "12:00") {
+        const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Almoço');
+        if (!bateu) { 
+          dispararNotificacao("🍽️ Hora do Almoço!", "Não esqueça de registrar a saída para o almoço."); 
+          ultimoAvisoDisparado = horaStr; 
+        }
+      }
+      if (horaStr === "16:00") {
+        const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final');
+        if (!bateu) { 
+          dispararNotificacao("🏠 Fim do Expediente!", "Já são 16h. Registre sua Saída Final antes de ir."); 
+          ultimoAvisoDisparado = horaStr; 
+        }
+      }
+    }, 30000);
+
+
     // ==========================================
-    // COLE SUA NOVA URL DO GOOGLE SCRIPTS AQUI
+    // SEU CÓDIGO NORMAL (COLE A URL DO GOOGLE AQUI)
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz2C7CMDee5LlUPCkYzTcEMjuWd-DzztpLIvQyi7h02nfI_2lmRr2gZcMCiDpzDelrP/exec";
     // ==========================================
 
@@ -346,6 +395,13 @@
           document.getElementById('main-content').style.display = 'block';
           document.getElementById('userName').innerText = res.user.nome;
           document.getElementById('userCargo').innerText = res.user.cargo;
+          
+          if(Notification.permission === "granted") {
+            lembretesAtivos = true;
+            document.getElementById('btnLembretes').innerHTML = "✅ Lembretes Ativos";
+            document.getElementById('btnLembretes').style.background = "#e8f5e9";
+          }
+
           carregarHistorico(); iniciarGps(); renderizarFeriados(res.feriados); 
         } else {
           btn.innerHTML = `Entrar no Sistema`; btn.disabled = false;
@@ -374,6 +430,7 @@
             const hoje = new Date().toLocaleDateString('pt-BR');
             if(!historicoGlobal.some(h => h.data === hoje && h.tipo === 'Entrada') && historicoGlobal.length > 0) {
                 autoPontoOferecido = true; document.getElementById('autoPontoModal').style.display = 'flex';
+                dispararNotificacao("📍 Você chegou!", "Deseja registrar sua Entrada agora?");
             }
         }
       }, null, {enableHighAccuracy: true});
@@ -433,7 +490,6 @@
         return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro.</div>";
       }
 
-      // 1. Agrupar batidas por dia
       let diasAgrupados = {};
       lista.forEach(r => {
         if(!diasAgrupados[r.data]) {
@@ -449,7 +505,6 @@
 
       let totalMinutosGeral = 0;
       
-      // 2. Construir Cabeçalho da Tabela
       let html = `
         <div style="overflow-x:auto;">
           <table style="width:100%; text-align:center; border-collapse:collapse; font-size:12px;">
@@ -471,7 +526,6 @@
         return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1);
       });
 
-      // 3. Preencher linhas e calcular tempo
       datasSorted.forEach(dia => {
         let d = diasAgrupados[dia];
         let totalDiaStr = '--:--';
@@ -484,7 +538,6 @@
           let mAlm = d.alm !== '--:--' ? getMinutos(d.alm) : null;
           let mRet = d.ret !== '--:--' ? getMinutos(d.ret) : null;
 
-          // CÁLCULO BLINDADO (Aceita virada de noite e horário 00:00)
           let tempoBruto = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
           let tempoPausa = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
           let minTrab = tempoBruto - tempoPausa;
@@ -522,7 +575,6 @@
       if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
     }
 
-    // Função de parse de minutos
     function getMinutos(str) { if(!str) return null; let p = str.split(':'); return parseInt(p[0])*60 + parseInt(p[1]); }
     function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}m`; }
 
@@ -533,7 +585,6 @@
       document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
       document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
 
-      // == CALCULO DO DIA DE HOJE ==
       const regsHoje = lista.filter(h => h.data === hojeStr);
       let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
       regsHoje.forEach(r => {
@@ -547,19 +598,17 @@
       let boxH = document.getElementById('saldoHoje');
       if(folgaH) { boxH.innerText = "FOLGA"; boxH.style.color = "var(--purple)"; }
       else if(mEnt !== null && mSai !== null) {
-        // CÁLCULO BLINDADO HOJE
         let tempoBrutoHoje = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
         let tempoPausaHoje = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
         let minTrabHoje = tempoBrutoHoje - tempoPausaHoje;
 
-        let saldoMin = minTrabHoje - 480; // Base 8h
+        let saldoMin = minTrabHoje - 480;
         boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
         boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
       } else {
         boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)";
       }
 
-      // == CALCULO DO MÊS INTEIRO ==
       const regsMes = lista.filter(h => h.data.endsWith(mesAtual));
       let diasAgrupados = {};
       regsMes.forEach(r => {
@@ -575,7 +624,6 @@
       for (let dia in diasAgrupados) {
         let d = diasAgrupados[dia];
         if(!d.folga && d.ent !== null && d.sai !== null) {
-            // CÁLCULO BLINDADO MÊS
             let tempoBrutoMes = (d.sai < d.ent) ? (d.sai + 1440 - d.ent) : (d.sai - d.ent);
             let tempoPausaMes = (d.alm !== null && d.ret !== null) ? (d.ret < d.alm ? d.ret + 1440 - d.alm : d.ret - d.alm) : 0;
             let minTrab = tempoBrutoMes - tempoPausaMes;
@@ -621,7 +669,6 @@
     document.getElementById('fHora').value = n.getHours().toString().padStart(2,'0') + ":" + n.getMinutes().toString().padStart(2,'0');
     document.getElementById('pdfMes').value = n.getMonth() + 1;
 
-    // --- FUNÇÕES DA FOLHA TRADICIONAL (ZOOM E SALVAMENTO) ---
     function mudarZoomFolha(valor) {
         document.getElementById('folha-a4').style.transform = `scale(${valor})`;
     }
@@ -646,7 +693,7 @@
 
     function gerarFolhaTradicional() {
       if(!currentUser) return;
-      const valMes = document.getElementById('tradMesData').value; // Ex: "2026-04"
+      const valMes = document.getElementById('tradMesData').value;
       if(!valMes) return;
       
       let [ano, mes] = valMes.split('-');
@@ -658,8 +705,23 @@
       const dataInicio = new Date(prevAno, prevMes - 1, 11);
       const dataFim = new Date(ano, mes - 1, 10);
 
-      // Carregar edições salvas localmente
       let edicoesSalvas = JSON.parse(localStorage.getItem('folhaManual_' + currentUser.loginID + '_' + valMes)) || {};
+
+      // ======== NOVA INTELIGÊNCIA DE HORÁRIOS ========
+      let horarioOficial = "07h - 16h"; // Padrão
+      let nomeUsuario = currentUser.user.nome.toLowerCase();
+      let idUsuario = currentUser.loginID.toLowerCase();
+
+      // Se for a Karina ou Alane, muda para 08h às 17h
+      if (nomeUsuario.includes("karina") || idUsuario.includes("karina") || 
+          nomeUsuario.includes("alane") || idUsuario.includes("alane")) {
+          horarioOficial = "08h - 17h";
+      } 
+      // Se for o Maurício, garante que é 07h às 16h
+      else if (nomeUsuario.includes("mauricio") || idUsuario.includes("mauricio")) {
+          horarioOficial = "07h - 16h";
+      }
+      // ===============================================
 
       let html = `
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
@@ -681,7 +743,7 @@
           </div>
           <div style="display:flex; justify-content:space-between;">
             <div><b>Local de trabalho:</b> <span class="page-input" contenteditable="true" style="min-width:150px; display:inline-block;">UBS Laranjeiras</span></div>
-            <div><b>Horário:</b> <span class="page-input" contenteditable="true" style="min-width:80px; display:inline-block; text-align:center;">07h - 16h</span></div>
+            <div><b>Horário:</b> <span class="page-input" contenteditable="true" style="min-width:80px; display:inline-block; text-align:center;">${horarioOficial}</span></div>
           </div>
         </div>
 
@@ -691,14 +753,12 @@
           </tr>
       `;
 
-      // Gerar as linhas do dia 11 ao 10
       let curDate = new Date(dataInicio);
       while(curDate <= dataFim) {
         let diaStr = curDate.getDate().toString();
         let diaSemana = curDate.getDay();
-        let dataIso = curDate.toLocaleDateString('pt-BR'); // Ex: "11/03/2026"
+        let dataIso = curDate.toLocaleDateString('pt-BR');
 
-        // Busca se existe registro no histórico para esse dia específico
         let regsDia = historicoGlobal.filter(h => h.data === dataIso);
         let e='--', ia='--', ta='--', s='--';
         
@@ -709,14 +769,12 @@
           if(r.tipo === 'Saída Final') s = r.hora;
         });
 
-        // Verificar prioridade: Edição Local Salva > Histórico API > '--'
         let finalE = edicoesSalvas[diaStr]?.e !== undefined ? edicoesSalvas[diaStr].e : (e !== '--' ? e : '');
         let finalIa = edicoesSalvas[diaStr]?.ia !== undefined ? edicoesSalvas[diaStr].ia : (ia !== '--' ? ia : '');
         let finalTa = edicoesSalvas[diaStr]?.ta !== undefined ? edicoesSalvas[diaStr].ta : (ta !== '--' ? ta : '');
         let finalS = edicoesSalvas[diaStr]?.s !== undefined ? edicoesSalvas[diaStr].s : (s !== '--' ? s : '');
         let finalAss = edicoesSalvas[diaStr]?.ass !== undefined ? edicoesSalvas[diaStr].ass : '';
 
-        // Fins de semana
         if(diaSemana === 0 || diaSemana === 6) {
           let nome = diaSemana === 0 ? "DOMINGO" : "SÁBADO";
           html += `
@@ -725,7 +783,6 @@
               <td colspan="5" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td>
             </tr>`;
         } else {
-          // Dia útil editável com auto-preenchimento e IDs baseados no dia e coluna
           html += `
             <tr>
               <td style="font-weight:bold;">${diaStr}</td>
@@ -736,7 +793,7 @@
               <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ass">${finalAss}</td>
             </tr>`;
         }
-        curDate.setDate(curDate.getDate() + 1); // avança 1 dia
+        curDate.setDate(curDate.getDate() + 1);
       }
 
       html += `</table>`;
