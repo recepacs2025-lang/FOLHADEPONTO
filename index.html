@@ -245,7 +245,6 @@
           <button class="btn btn-green" id="btnPdf" onclick="gerarPDF()">Baixar Documento</button>
         </div>
 
-        <!-- NOVO PAINEL DE ESTATÍSTICAS MATEMÁTICAS -->
         <div class="card">
           <div class="card-title">📊 Estatísticas Avançadas (Histórico Todo)</div>
           <div id="statsAvancadas" class="stats-grid">
@@ -286,14 +285,14 @@
         <div class="card">
           <div class="card-title">Gerar Espelho Físico (Editável)</div>
           <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:15px;">
-            <label>Mês de Fechamento (Dia 10)</label>
+            <label>Mês de Fechamento (Dia 11 a 10)</label>
             <input type="month" id="tradMesData" value="2026-04" onchange="gerarFolhaTradicional()">
             <div style="display:flex; gap:10px;">
               <button class="btn" style="flex:1; background:var(--blue);" onclick="salvarFolhaA4()">💾 Salvar Edições</button>
               <button class="btn btn-green" style="flex:1;" onclick="window.print()">🖨️ Imprimir A4</button>
             </div>
             <p style="font-size:12px; color:var(--subtext); margin-top:5px; text-align:center;">
-              ⚠️ Ao digitar os horários na folha abaixo, os totais são <b>calculados automaticamente!</b>
+              ⚠️ Ao digitar os horários na folha abaixo, os totais são <b>calculados automaticamente!</b> A assinatura aparece sozinha nos dias trabalhados.
             </p>
           </div>
         </div>
@@ -346,20 +345,16 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(err => console.error('Erro SW', err));
-      });
+      window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.error('Erro SW', err)); });
     }
 
-    let lembretesAtivos = false;
-    let ultimoAvisoDisparado = "";
+    let lembretesAtivos = false; let ultimoAvisoDisparado = "";
 
     function ativarNotificacoes() {
       if (!("Notification" in window)) return abrirModal("Erro", "Sem suporte a notificações.", "erro");
       Notification.requestPermission().then(permission => {
         if (permission === "granted") {
-          lembretesAtivos = true;
-          document.getElementById('btnLembretes').innerHTML = "✅ Lembretes Ativos";
+          lembretesAtivos = true; document.getElementById('btnLembretes').innerHTML = "✅ Lembretes Ativos";
           document.getElementById('btnLembretes').style.background = "#e8f5e9";
           abrirModal("Sucesso", "Você será avisado sobre seus horários!", "sucesso");
         }
@@ -375,10 +370,8 @@
 
     setInterval(() => {
       if (!lembretesAtivos || !currentUser) return;
-      const agora = new Date();
-      const horaStr = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
+      const agora = new Date(); const horaStr = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
       const hojeStr = agora.toLocaleDateString('pt-BR');
-
       if (horaStr === ultimoAvisoDisparado) return;
       if (horaStr === "12:00") {
         const bateu = historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Almoço');
@@ -396,35 +389,25 @@
     let historicoGlobal = []; let autoPontoOferecido = false;
 
     function abrirModal(titulo, msg, tipo='sucesso') {
-      document.getElementById('modalTitle').innerText = titulo;
-      document.getElementById('modalMsg').innerText = msg;
-      document.getElementById('modalIcon').innerText = tipo === 'erro' ? '⚠️' : '✅';
-      document.getElementById('customModal').style.display = 'flex';
+      document.getElementById('modalTitle').innerText = titulo; document.getElementById('modalMsg').innerText = msg;
+      document.getElementById('modalIcon').innerText = tipo === 'erro' ? '⚠️' : '✅'; document.getElementById('customModal').style.display = 'flex';
     }
 
     function fazerLogin() {
-      const login = document.getElementById('lUser').value.trim().toLowerCase();
-      const senha = document.getElementById('lPass').value.trim();
-      const btn = document.getElementById('btnLogin');
-      const err = document.getElementById('loginError');
-
+      const login = document.getElementById('lUser').value.trim().toLowerCase(); const senha = document.getElementById('lPass').value.trim();
+      const btn = document.getElementById('btnLogin'); const err = document.getElementById('loginError');
       if(!login || !senha) return;
       btn.innerHTML = "Conectando..."; btn.disabled = true; err.style.display = 'none';
       
-      fetch(WEB_APP_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-        body: JSON.stringify({ acao: "login", login: login, senha: senha })
+      fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "login", login: login, senha: senha })
       }).then(r => r.json()).then(res => {
         if(res.autorizado) {
           currentUser = res; currentUser.loginID = login;
-          document.getElementById('login-screen').style.display = 'none';
-          document.getElementById('main-content').style.display = 'block';
-          document.getElementById('userName').innerText = res.user.nome;
-          document.getElementById('userCargo').innerText = res.user.cargo;
+          document.getElementById('login-screen').style.display = 'none'; document.getElementById('main-content').style.display = 'block';
+          document.getElementById('userName').innerText = res.user.nome; document.getElementById('userCargo').innerText = res.user.cargo;
           carregarHistorico(); iniciarGps(); renderizarFeriados(res.feriados); 
         } else {
-          btn.innerHTML = `Entrar no Sistema`; btn.disabled = false;
-          err.innerText = "Credenciais incorretas!"; err.style.display = 'block';
+          btn.innerHTML = `Entrar no Sistema`; btn.disabled = false; err.innerText = "Credenciais incorretas!"; err.style.display = 'block';
         }
       }).catch(e => { btn.disabled=false; err.innerText="Erro na rede."; err.style.display='block'; });
     }
@@ -451,30 +434,22 @@
 
     function pontoRapido(tipo, bypassConfirm = false) {
       const hojeStr = new Date().toLocaleDateString('pt-BR');
-      if(tipo === 'Saída Final' && historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final')) {
-          return abrirModal("Bloqueado", "Você já registrou a Saída Final de hoje.", "erro");
-      }
+      if(tipo === 'Saída Final' && historicoGlobal.some(h => h.data === hojeStr && h.tipo === 'Saída Final')) { return abrirModal("Bloqueado", "Você já registrou a Saída Final de hoje.", "erro"); }
       if(!bypassConfirm && !confirm(`Confirma registrar ${tipo} agora?`)) return;
 
-      const agora = new Date();
-      const horaStr = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
-      
+      const agora = new Date(); const horaStr = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
       dispararRequisicao({ usuario: currentUser.user.nome, dataManual: hojeStr, horaManual: horaStr, tipo: tipo, lat: geo.lat, lon: geo.lon, noLocal: geo.ok, obs: "" }, (res) => {
-          if(res && res.sucesso === false) abrirModal("Aviso", res.msg, "erro");
-          else { abrirModal("Sucesso", `Ponto de ${tipo} registrado!`, "sucesso"); carregarHistorico(); }
+          if(res && res.sucesso === false) abrirModal("Aviso", res.msg, "erro"); else { abrirModal("Sucesso", `Ponto de ${tipo} registrado!`, "sucesso"); carregarHistorico(); }
       });
     }
 
     function alternarCamposManual(valor) { document.getElementById('blocoHorarios').style.display = valor === 'horas' ? 'block' : 'none'; }
 
     async function enviarPontoManualLote() {
-        const tipoGeral = document.getElementById('fTipoGeral').value;
-        const dataOriginal = document.getElementById('fData').value;
+        const tipoGeral = document.getElementById('fTipoGeral').value; const dataOriginal = document.getElementById('fData').value;
         if(!dataOriginal) return abrirModal("Erro", "Selecione uma data válida.", "erro");
-        
         const dataFormatada = dataOriginal.split('-').reverse().join('/');
-        const btn = document.getElementById('btnRegistrar'); 
-        btn.innerText = "Salvando Lote..."; btn.disabled = true;
+        const btn = document.getElementById('btnRegistrar'); btn.innerText = "Salvando Lote..."; btn.disabled = true;
 
         let registrosParaEnviar = [];
         if (tipoGeral === 'horas') {
@@ -512,36 +487,24 @@
     function carregarHistorico() {
       fetch(WEB_APP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ acao: "historico", nome: currentUser.user.nome })
       }).then(r => r.json()).then(res => {
-        historicoGlobal = res; 
-        calcularPainelHoras(res);
-        renderizarHistoricoCard(res); 
+        historicoGlobal = res; calcularPainelHoras(res); renderizarHistoricoCard(res); 
       });
     }
 
     function renderizarHistoricoCard(lista) {
-      const div = document.getElementById('listaHistorico');
-      const spanGeral = document.getElementById('totalHorasGeral');
-      
-      if(lista.length === 0) {
-        if(spanGeral) spanGeral.innerText = "0h 00m";
-        return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro encontrado.</div>";
-      }
+      const div = document.getElementById('listaHistorico'); const spanGeral = document.getElementById('totalHorasGeral');
+      if(lista.length === 0) { if(spanGeral) spanGeral.innerText = "0h 00m"; return div.innerHTML = "<div style='text-align:center; padding:20px;'>Nenhum registro encontrado.</div>"; }
 
       let diasAgrupados = {};
       lista.forEach(r => {
         if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { data: r.data, ent: '--:--', alm: '--:--', ret: '--:--', sai: '--:--', folga: false, obs: [] };
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = r.hora;
-        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = r.hora;
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora;
-        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
-        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
-        if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
+        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = r.hora; if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = r.hora;
+        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = r.hora; if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = r.hora;
+        if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true; if(r.obs) diasAgrupados[r.data].obs.push(`${r.tipo}: ${r.obs}`);
       });
 
       let totalMinutosGeral = 0; let html = "";
-      let datasSorted = Object.keys(diasAgrupados).sort((a,b) => {
-        let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/'); return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1);
-      });
+      let datasSorted = Object.keys(diasAgrupados).sort((a,b) => { let [d1,m1,y1] = a.split('/'); let [d2,m2,y2] = b.split('/'); return new Date(y2,m2-1,d2) - new Date(y1,m1-1,d1); });
 
       datasSorted.forEach(dia => {
         let d = diasAgrupados[dia]; let totalDiaStr = '--:--'; let corSaldo = 'var(--text)';
@@ -554,12 +517,9 @@
           let minTrab = tempoBruto - tempoPausa;
           totalMinutosGeral += minTrab;
 
-          let hStr = Math.floor(minTrab/60).toString().padStart(2,'0');
-          let mStr = (minTrab%60).toString().padStart(2,'0');
+          let hStr = Math.floor(minTrab/60).toString().padStart(2,'0'); let mStr = (minTrab%60).toString().padStart(2,'0');
           totalDiaStr = `${hStr}h ${mStr}m`;
-          
-          let balancoMin = minTrab - 480;
-          if(balancoMin > 0) corSaldo = 'var(--green)'; else if(balancoMin < 0) corSaldo = 'var(--red)';
+          let balancoMin = minTrab - 480; if(balancoMin > 0) corSaldo = 'var(--green)'; else if(balancoMin < 0) corSaldo = 'var(--red)';
         }
 
         html += `<div class="hist-card"><div class="hist-header"><span class="hist-date">${d.data}</span><span class="hist-total" style="color:${corSaldo}">${totalDiaStr}</span></div>`;
@@ -579,11 +539,9 @@
       let htGeral = Math.floor(totalMinutosGeral/60); let mtGeral = totalMinutosGeral % 60;
       if(spanGeral) spanGeral.innerText = `${htGeral}h ${String(mtGeral).padStart(2,'0')}m`;
 
-      calcularResumoMensal(diasAgrupados);
-      calcularEstatisticasAvancadas(diasAgrupados);
+      calcularResumoMensal(diasAgrupados); calcularEstatisticasAvancadas(diasAgrupados);
     }
 
-    // --- CÁLCULO MENSAL TOTAL ---
     function calcularResumoMensal(diasAgrupados) {
         let resumoMeses = {};
         for (let dia in diasAgrupados) {
@@ -603,33 +561,19 @@
         }
 
         let htmlResumo = "";
-        let mesesArr = Object.keys(resumoMeses).sort((a,b) => {
-            let [m1,y1] = a.split('/'); let [m2,y2] = b.split('/'); return new Date(y2,m2-1,1) - new Date(y1,m1-1,1);
-        });
+        let mesesArr = Object.keys(resumoMeses).sort((a,b) => { let [m1,y1] = a.split('/'); let [m2,y2] = b.split('/'); return new Date(y2,m2-1,1) - new Date(y1,m1-1,1); });
 
         mesesArr.forEach(m => {
             if(!resumoMeses[m].temRegistros) return;
-            let sm = resumoMeses[m].saldoMinutos;
-            let cor = sm > 0 ? 'var(--green)' : (sm < 0 ? 'var(--red)' : 'var(--text)');
-            let sinal = sm > 0 ? "+" : (sm < 0 ? "-" : "");
-            
-            htmlResumo += `
-            <div class="mes-card">
-              <strong style="font-size:15px; color:var(--text);">${obterNomeMes(m.split('/')[0])} ${m.split('/')[1]}</strong>
-              <div style="font-size:18px; font-weight:800; color:${cor};">${formataMinutos(Math.abs(sm), sinal)}</div>
-            </div>`;
+            let sm = resumoMeses[m].saldoMinutos; let cor = sm > 0 ? 'var(--green)' : (sm < 0 ? 'var(--red)' : 'var(--text)'); let sinal = sm > 0 ? "+" : (sm < 0 ? "-" : "");
+            htmlResumo += `<div class="mes-card"><strong style="font-size:15px; color:var(--text);">${obterNomeMes(m.split('/')[0])} ${m.split('/')[1]}</strong><div style="font-size:18px; font-weight:800; color:${cor};">${formataMinutos(Math.abs(sm), sinal)}</div></div>`;
         });
         if(htmlResumo === "") htmlResumo = "<div style='text-align:center; padding:10px; color:#888;'>Sem meses concluídos.</div>";
         document.getElementById('listaResumoMeses').innerHTML = htmlResumo;
     }
 
-    // --- NOVA FUNÇÃO: ESTATÍSTICAS AVANÇADAS ---
     function calcularEstatisticasAvancadas(diasAgrupados) {
-        let diasTrabalhados = 0;
-        let diasFolga = 0;
-        let minutosTotais = 0;
-        let minutosExtra = 0;
-        let minutosDevendo = 0;
+        let diasTrabalhados = 0; let diasFolga = 0; let minutosTotais = 0; let minutosExtra = 0; let minutosDevendo = 0;
 
         for(let dia in diasAgrupados) {
             let d = diasAgrupados[dia];
@@ -649,15 +593,10 @@
         }
 
         let mediaStr = "0h 00m";
-        if(diasTrabalhados > 0) {
-            let mediaMin = Math.floor(minutosTotais / diasTrabalhados);
-            mediaStr = `${Math.floor(mediaMin/60)}h ${String(mediaMin%60).padStart(2,'0')}m`;
-        }
+        if(diasTrabalhados > 0) { let mediaMin = Math.floor(minutosTotais / diasTrabalhados); mediaStr = `${Math.floor(mediaMin/60)}h ${String(mediaMin%60).padStart(2,'0')}m`; }
 
-        document.getElementById('stMedia').innerText = mediaStr;
-        document.getElementById('stDiasTrab').innerText = `${diasTrabalhados} dias`;
-        document.getElementById('stExtra').innerText = formataMinutos(minutosExtra, "+");
-        document.getElementById('stDevendo').innerText = formataMinutos(minutosDevendo, "-");
+        document.getElementById('stMedia').innerText = mediaStr; document.getElementById('stDiasTrab').innerText = `${diasTrabalhados} dias`;
+        document.getElementById('stExtra').innerText = formataMinutos(minutosExtra, "+"); document.getElementById('stDevendo').innerText = formataMinutos(minutosDevendo, "-");
     }
 
     function obterNomeMes(numStr) { const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]; return meses[parseInt(numStr)-1] || numStr; }
@@ -665,14 +604,11 @@
     function formataMinutos(minAbs, sinal) { let h = Math.floor(minAbs/60); let m = minAbs%60; return `${sinal}${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`; }
 
     function calcularPainelHoras(lista) {
-      const hojeStr = new Date().toLocaleDateString('pt-BR');
-      const mesAtual = hojeStr.substring(3);
-      
+      const hojeStr = new Date().toLocaleDateString('pt-BR'); const mesAtual = hojeStr.substring(3);
       document.getElementById('tl-ent').innerText = "--:--"; document.getElementById('tl-alm').innerText = "--:--";
       document.getElementById('tl-ret').innerText = "--:--"; document.getElementById('tl-sai').innerText = "--:--";
 
-      const regsHoje = lista.filter(h => h.data === hojeStr);
-      let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
+      const regsHoje = lista.filter(h => h.data === hojeStr); let mEnt=null, mAlm=null, mRet=null, mSai=null, folgaH=false;
       regsHoje.forEach(r => {
         if(r.tipo === 'Entrada') { mEnt = getMinutos(r.hora); document.getElementById('tl-ent').innerText = r.hora; }
         if(r.tipo === 'Almoço') { mAlm = getMinutos(r.hora); document.getElementById('tl-alm').innerText = r.hora; }
@@ -687,22 +623,15 @@
         let tempoBrutoHoje = (mSai < mEnt) ? (mSai + 1440 - mEnt) : (mSai - mEnt);
         let tempoPausaHoje = (mAlm !== null && mRet !== null) ? (mRet < mAlm ? mRet + 1440 - mAlm : mRet - mAlm) : 0;
         let minTrabHoje = tempoBrutoHoje - tempoPausaHoje;
-
-        let saldoMin = minTrabHoje - 480;
-        boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
+        let saldoMin = minTrabHoje - 480; boxH.innerText = formataMinutos(Math.abs(saldoMin), saldoMin > 0 ? "+" : (saldoMin < 0 ? "-" : ""));
         boxH.style.color = saldoMin > 0 ? "var(--green)" : (saldoMin < 0 ? "var(--red)" : "var(--text)");
-      } else {
-        boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)";
-      }
+      } else { boxH.innerText = "EM CURSO"; boxH.style.color = "var(--subtext)"; }
 
-      const regsMes = lista.filter(h => h.data.endsWith(mesAtual));
-      let diasAgrupados = {};
+      const regsMes = lista.filter(h => h.data.endsWith(mesAtual)); let diasAgrupados = {};
       regsMes.forEach(r => {
         if(!diasAgrupados[r.data]) diasAgrupados[r.data] = { ent:null, alm:null, ret:null, sai:null, folga:false };
-        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora);
-        if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
-        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora);
-        if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
+        if(r.tipo === 'Entrada') diasAgrupados[r.data].ent = getMinutos(r.hora); if(r.tipo === 'Almoço') diasAgrupados[r.data].alm = getMinutos(r.hora);
+        if(r.tipo === 'Retorno') diasAgrupados[r.data].ret = getMinutos(r.hora); if(r.tipo === 'Saída Final') diasAgrupados[r.data].sai = getMinutos(r.hora);
         if(r.tipo === 'Folga') diasAgrupados[r.data].folga = true;
       });
 
@@ -712,13 +641,10 @@
         if(!d.folga && d.ent !== null && d.sai !== null) {
             let tempoBrutoMes = (d.sai < d.ent) ? (d.sai + 1440 - d.ent) : (d.sai - d.ent);
             let tempoPausaMes = (d.alm !== null && d.ret !== null) ? (d.ret < d.alm ? d.ret + 1440 - d.alm : d.ret - d.alm) : 0;
-            let minTrab = tempoBrutoMes - tempoPausaMes;
-            saldoMesMins += (minTrab - 480);
+            let minTrab = tempoBrutoMes - tempoPausaMes; saldoMesMins += (minTrab - 480);
         }
       }
-
-      let boxM = document.getElementById('saldoMes');
-      boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
+      let boxM = document.getElementById('saldoMes'); boxM.innerText = formataMinutos(Math.abs(saldoMesMins), saldoMesMins > 0 ? "+" : (saldoMesMins < 0 ? "-" : ""));
       boxM.style.color = saldoMesMins > 0 ? "var(--green)" : (saldoMesMins < 0 ? "var(--red)" : "var(--text)");
     }
 
@@ -735,79 +661,64 @@
     }
 
     function show(v, btnObj) { document.querySelectorAll('.view').forEach(x => x.classList.remove('active')); document.querySelectorAll('.tab-item').forEach(x => x.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); btnObj.classList.add('active'); }
-    
     const n = new Date(); document.getElementById('fData').valueAsDate = n; document.getElementById('pdfMes').value = n.getMonth() + 1;
     function mudarZoomFolha(valor) { document.getElementById('folha-a4').style.transform = `scale(${valor})`; }
 
     function salvarFolhaA4() {
-        const valMes = document.getElementById('tradMesData').value;
-        if(!valMes) return;
+        const valMes = document.getElementById('tradMesData').value; if(!valMes) return;
         let edicoes = {};
         document.querySelectorAll('.td-edit').forEach(td => {
             let dia = td.getAttribute('data-dia'); let col = td.getAttribute('data-col');
-            if(dia && col) { if(!edicoes[dia]) edicoes[dia] = {}; edicoes[dia][col] = td.innerText.trim(); }
+            if(dia && col) { if(!edicoes[dia]) edicoes[dia] = {}; edicoes[dia][col] = td.innerText.trim() !== "" ? td.innerText.trim() : td.innerHTML; }
         });
         localStorage.setItem('folhaManual_' + currentUser.loginID + '_' + valMes, JSON.stringify(edicoes));
         abrirModal("Sucesso", "Edições da folha salvas neste dispositivo!", "sucesso");
     }
 
-    // --- NOVA LÓGICA: CÁLCULO DIRETO NA FOLHA A4 ---
     function calcularLinhaA4(celulaEditada) {
         let tr = celulaEditada.parentElement;
-        let e = getMinutos(tr.querySelector('[data-col="e"]')?.innerText);
-        let ia = getMinutos(tr.querySelector('[data-col="ia"]')?.innerText);
-        let ta = getMinutos(tr.querySelector('[data-col="ta"]')?.innerText);
-        let s = getMinutos(tr.querySelector('[data-col="s"]')?.innerText);
+        let e = getMinutos(tr.querySelector('[data-col="e"]')?.innerText); let ia = getMinutos(tr.querySelector('[data-col="ia"]')?.innerText);
+        let ta = getMinutos(tr.querySelector('[data-col="ta"]')?.innerText); let s = getMinutos(tr.querySelector('[data-col="s"]')?.innerText);
         
-        let tdTotal = tr.querySelector('.td-total');
-        if(!tdTotal) return;
+        let tdTotal = tr.querySelector('.td-total'); if(!tdTotal) return;
 
         if(e !== null && s !== null) {
             let tempoBruto = (s < e) ? (s + 1440 - e) : (s - e);
             let tempoPausa = (ia !== null && ta !== null) ? (ta < ia ? ta + 1440 - ia : ta - ia) : 0;
             let minTrab = tempoBruto - tempoPausa;
             
-            let h = Math.floor(minTrab/60).toString().padStart(2,'0');
-            let m = (minTrab%60).toString().padStart(2,'0');
-            tdTotal.innerText = `${h}:${m}`;
-            tdTotal.setAttribute('data-minutos', minTrab);
-        } else {
-            tdTotal.innerText = "";
-            tdTotal.removeAttribute('data-minutos');
-        }
+            let h = Math.floor(minTrab/60).toString().padStart(2,'0'); let m = (minTrab%60).toString().padStart(2,'0');
+            tdTotal.innerText = `${h}:${m}`; tdTotal.setAttribute('data-minutos', minTrab);
+        } else { tdTotal.innerText = ""; tdTotal.removeAttribute('data-minutos'); }
         calcularTotalFolhaA4();
     }
 
     function calcularTotalFolhaA4() {
         let somaMinutos = 0;
-        document.querySelectorAll('#folha-a4 .td-total').forEach(td => {
-            let mins = td.getAttribute('data-minutos');
-            if(mins) somaMinutos += parseInt(mins);
-        });
-        
+        document.querySelectorAll('#folha-a4 .td-total').forEach(td => { let mins = td.getAttribute('data-minutos'); if(mins) somaMinutos += parseInt(mins); });
         let elTotal = document.getElementById('a4-total-geral');
-        if(elTotal) {
-            let h = Math.floor(somaMinutos/60).toString().padStart(2,'0');
-            let m = (somaMinutos%60).toString().padStart(2,'0');
-            elTotal.innerText = `${h}:${m}`;
-        }
+        if(elTotal) { let h = Math.floor(somaMinutos/60).toString().padStart(2,'0'); let m = (somaMinutos%60).toString().padStart(2,'0'); elTotal.innerText = `${h}:${m}`; }
     }
 
     function gerarFolhaTradicional() {
       if(!currentUser) return;
-      const valMes = document.getElementById('tradMesData').value;
-      if(!valMes) return;
+      const valMes = document.getElementById('tradMesData').value; if(!valMes) return;
       
       let [ano, mes] = valMes.split('-'); ano = parseInt(ano); mes = parseInt(mes);
       let prevMes = mes - 1; let prevAno = ano; if(prevMes === 0) { prevMes = 12; prevAno--; }
 
-      const dataInicio = new Date(prevAno, prevMes - 1, 11);
-      const dataFim = new Date(ano, mes - 1, 10);
+      const dataInicio = new Date(prevAno, prevMes - 1, 11); const dataFim = new Date(ano, mes - 1, 10);
       let edicoesSalvas = JSON.parse(localStorage.getItem('folhaManual_' + currentUser.loginID + '_' + valMes)) || {};
 
       let horarioOficial = "07h - 16h"; let nomeUsuario = currentUser.user.nome.toLowerCase(); let idUsuario = currentUser.loginID.toLowerCase();
       if (nomeUsuario.includes("karina") || idUsuario.includes("karina") || nomeUsuario.includes("alane") || idUsuario.includes("alane")) { horarioOficial = "08h - 17h"; } 
       else if (nomeUsuario.includes("mauricio") || idUsuario.includes("mauricio")) { horarioOficial = "07h - 16h"; }
+
+      // PREPARA A TAG DA ASSINATURA
+      let tagAssinatura = "";
+      if(currentUser.user.assinatura) {
+          tagAssinatura = `<img src="${currentUser.user.assinatura}" style="max-height: 16px; vertical-align: middle;">`;
+      }
 
       let html = `
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #555; padding-bottom:10px; margin-bottom:10px;">
@@ -839,33 +750,45 @@
 
       let curDate = new Date(dataInicio);
       while(curDate <= dataFim) {
-        let diaStr = curDate.getDate().toString(); let diaSemana = curDate.getDay(); let dataIso = curDate.toLocaleDateString('pt-BR');
+        let diaNum = ('0' + curDate.getDate()).slice(-2);
+        let mesNum = ('0' + (curDate.getMonth() + 1)).slice(-2);
+        let dataIso = curDate.toLocaleDateString('pt-BR');
+        let diaSemana = curDate.getDay(); 
+
         let regsDia = historicoGlobal.filter(h => h.data === dataIso);
-        let e='', ia='', ta='', s='';
+        let e='', ia='', ta='', s='', folga=false;
         
         regsDia.forEach(r => {
           if(r.tipo === 'Entrada') e = r.hora; if(r.tipo === 'Almoço') ia = r.hora;
           if(r.tipo === 'Retorno') ta = r.hora; if(r.tipo === 'Saída Final') s = r.hora;
+          if(r.tipo === 'Folga') folga = true;
         });
 
-        let finalE = edicoesSalvas[diaStr]?.e !== undefined ? edicoesSalvas[diaStr].e : e;
-        let finalIa = edicoesSalvas[diaStr]?.ia !== undefined ? edicoesSalvas[diaStr].ia : ia;
-        let finalTa = edicoesSalvas[diaStr]?.ta !== undefined ? edicoesSalvas[diaStr].ta : ta;
-        let finalS = edicoesSalvas[diaStr]?.s !== undefined ? edicoesSalvas[diaStr].s : s;
-        let finalAss = edicoesSalvas[diaStr]?.ass !== undefined ? edicoesSalvas[diaStr].ass : '';
+        let finalE = edicoesSalvas[diaNum]?.e !== undefined ? edicoesSalvas[diaNum].e : e;
+        let finalIa = edicoesSalvas[diaNum]?.ia !== undefined ? edicoesSalvas[diaNum].ia : ia;
+        let finalTa = edicoesSalvas[diaNum]?.ta !== undefined ? edicoesSalvas[diaNum].ta : ta;
+        let finalS = edicoesSalvas[diaNum]?.s !== undefined ? edicoesSalvas[diaNum].s : s;
+        
+        // Regra da Assinatura: Se tiver batida de entrada e saída e não estiver editado manualmente, põe a imagem
+        let finalAss = edicoesSalvas[diaNum]?.ass !== undefined ? edicoesSalvas[diaNum].ass : '';
+        if (finalAss === '' && finalE !== '' && finalS !== '') {
+            finalAss = tagAssinatura;
+        }
 
-        if(diaSemana === 0 || diaSemana === 6) {
+        if(folga) {
+            html += `<tr style="background:#e0e0e0; font-weight:bold;"><td style="font-size:11px;">${diaNum}/${mesNum}</td><td colspan="6" style="letter-spacing:3px;">F O L G A / F E R I A D O</td></tr>`;
+        } else if(diaSemana === 0 || diaSemana === 6) {
           let nome = diaSemana === 0 ? "DOMINGO" : "SÁBADO";
-          html += `<tr style="background:#d3d3d3; font-weight:bold;"><td>${diaStr}</td><td colspan="6" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td></tr>`;
+          html += `<tr style="background:#d3d3d3; font-weight:bold;"><td style="font-size:11px;">${diaNum}/${mesNum}</td><td colspan="6" style="text-align:left; padding-left:15px; letter-spacing:2px;">${nome}</td></tr>`;
         } else {
           html += `
             <tr>
-              <td style="font-weight:bold;">${diaStr}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="e" oninput="calcularLinhaA4(this)">${finalE}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ia" oninput="calcularLinhaA4(this)">${finalIa}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ta" oninput="calcularLinhaA4(this)">${finalTa}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="s" oninput="calcularLinhaA4(this)">${finalS}</td>
-              <td class="td-edit" contenteditable="true" data-dia="${diaStr}" data-col="ass">${finalAss}</td>
+              <td style="font-weight:bold; font-size:11px;">${diaNum}/${mesNum}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="e" oninput="calcularLinhaA4(this)">${finalE}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ia" oninput="calcularLinhaA4(this)">${finalIa}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ta" oninput="calcularLinhaA4(this)">${finalTa}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="s" oninput="calcularLinhaA4(this)">${finalS}</td>
+              <td class="td-edit" contenteditable="true" data-dia="${diaNum}" data-col="ass" style="vertical-align:middle;">${finalAss}</td>
               <td class="td-total"></td>
             </tr>`;
         }
@@ -879,9 +802,18 @@
         </tr>
       </table>`;
       
-      document.getElementById('folha-a4').innerHTML = html;
+      // CAMPO DE ASSINATURA FINAL (RODAPÉ)
+      html += `
+      <div style="margin-top: 40px; text-align: center;">
+        ${currentUser.user.assinatura ? `<img src="${currentUser.user.assinatura}" style="height: 55px; margin-bottom: -15px;">` : `<br><br><br>`}
+        <div style="border-top: 1px solid #000; width: 300px; margin: 0 auto; padding-top: 5px; font-size: 12px;">
+          <b>${currentUser.user.nome.toUpperCase()}</b><br>
+          Assinatura do Servidor(a)
+        </div>
+      </div>
+      `;
       
-      // Força o cálculo de todas as linhas que já vieram preenchidas do banco ou do cache
+      document.getElementById('folha-a4').innerHTML = html;
       document.querySelectorAll('#folha-a4 .td-edit[data-col="e"]').forEach(td => calcularLinhaA4(td));
     }
   </script>
